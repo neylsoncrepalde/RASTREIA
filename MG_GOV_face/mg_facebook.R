@@ -2,7 +2,7 @@
 #Script: Neylson Crepalde
 #Diretor de Monitoramento e Avaliação - SEDESE
 
-library(readr)
+library(data.table)
 library(magrittr)
 library(descr)
 library(ggplot2)
@@ -11,8 +11,8 @@ library(RTextTools)
 library(lubridate)
 
 setwd('C:/Users/Administrator/Documents/BigData/Governo de Minas')
-dados = read_tsv('page_416907625028840_2017_02_01_13_19_33_comments.tab',
-                 na="", quoted_na = F)
+dados = fread('page_416907625028840_2017_02_01_13_19_33_comments.tab',
+                 header=T, sep='\t) %>% as.data.frame(., stringsAsFactors=F)
 
 names(dados)
 freq(dados$post_by, plot=F)
