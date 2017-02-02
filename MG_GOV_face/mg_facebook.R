@@ -12,7 +12,7 @@ library(lubridate)
 
 setwd('C:/Users/Administrator/Documents/BigData/Governo de Minas')
 dados = fread('page_416907625028840_2017_02_01_13_19_33_comments.tab',
-                 header=T, sep='\t) %>% as.data.frame(., stringsAsFactors=F)
+                 header=T, sep='\t') %>% as.data.frame(., stringsAsFactors=F)
 
 names(dados)
 freq(dados$post_by, plot=F)
