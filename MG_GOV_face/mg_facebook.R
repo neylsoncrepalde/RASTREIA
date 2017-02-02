@@ -94,5 +94,20 @@ plot(g2, edge.width=log(E(g2)$weight)/40, vertex.label.cex=deg/25,
      vertex.shape="none")
 title('Rede semântica - Facebook')
 
+########################################
+# Fluxo de comentários
+library(lubridate)
+
+dados$comment_date = ymd_hms(dados$comment_published)
+dados$comment_date = round_date(dados$comment_date, 'day')
+datas = as.data.frame(table(dados$comment_date), stringsAsFactors = F)
+datas$Var1 = as.Date(datas$Var1)
+descr::freq(dados$comment_date)
+limits = ymd(c(20160709, 20170201)) %>% as.Date
+ggplot(datas, aes(x=Var1, y=Freq))+geom_line(col='darkred')+scale_x_date(date_minor_breaks = '1 week', date_breaks = '2 weeks', date_labels = '%d/%m/%y', limits = limits)+
+  labs(x='',y='Número de Comentários')
+
+
+
 #############################################################
 # Análise de sentimentos
