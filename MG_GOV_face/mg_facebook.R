@@ -107,6 +107,24 @@ limits = ymd(c(20160709, 20170201)) %>% as.Date
 ggplot(datas, aes(x=Var1, y=Freq))+geom_line(col='darkred')+scale_x_date(date_minor_breaks = '1 week', date_breaks = '2 weeks', date_labels = '%d/%m/%y', limits = limits)+
   labs(x='',y='Número de Comentários')
 
+##################################
+# Posts mais comentados
+
+tabela = freq(dados$post_id,plot=F) %>% as.data.frame(., stringsAsFactors=F)
+tabela$id = rownames(tabela)
+arrange(tabela, desc(Frequência))[1:6,]
+
+idsmaiscomentados = c('416907625028840_1375524435833816',
+                      '416907625028840_1253367584716169',
+                      '416907625028840_1373377346048525')
+
+postsmaiscomentados = c()
+for(id in idsmaiscomentados){
+  post = dados$post_text[dados$post_id == id]
+  postsmaiscomentados = c(postsmaiscomentados, post)
+}
+
+postsmaiscomentados %>% unique
 
 
 #############################################################
