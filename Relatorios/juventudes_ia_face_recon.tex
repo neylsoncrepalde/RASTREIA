@@ -63,7 +63,7 @@
 	
 	\section*{O sistema \textit{Acompanha} -- REVISAR}
 	
-	O sistema \textit{Acompanha} foi desenvolvido na SEDESE com o intuito de acompanhar e oferecer um suporte aos alunos participantes das oficinas oferecidas dentro do programa \textit{Juventudes}. O sistema recebe informações sobre os alunos, sobre os professores e sobre a turma. Um dos objetivos do sistema é verificar a quantidade de alunos atendidos pelo programa em cada regional. A fiscalização da veracidade das informações alimentadas no sistema pelos gestores das regionais é demasiado custosa dado o grande número de alunos atendidos pelo programa e sua distribuição em X localidades do estado mineiro. Como uma solução para esse problema, os gestores das regionais serão incentivados a enviar algumas fotos da turma ao longo das atividades formativas as quais serão utilizadas para verificação do número de alunos através de contagem de rostos automatizada. Explicitamos mais detidamente de que modo a contagem de rostos em fotos é realizada.
+	O sistema \textit{Acompanha} foi desenvolvido na SEDESE com o intuito de acompanhar e oferecer um suporte aos alunos participantes das oficinas oferecidas dentro do programa \textit{Juventudes}. O sistema recebe informações sobre os alunos, sobre os professores e sobre a turma. Um dos objetivos do sistema é verificar a quantidade de alunos atendidos pelo programa em cada regional. A fiscalização da veracidade das informações alimentadas no sistema pelos gestores das regiões é demasiado custosa dado o grande número de alunos atendidos pelo programa e sua distribuição em X localidades do estado mineiro. Como uma solução para esse problema, os gestores das regiões serão incentivados a enviar algumas fotos da turma ao longo das atividades formativas as quais serão utilizadas para verificação do número de alunos através de contagem de rostos automatizada. Explicitamos mais detidamente de que modo a contagem de rostos em fotos é realizada.
 	
 	\section*{\textit{Computer Vision}}
 	
@@ -75,7 +75,9 @@
 	
 	\section*{Considerações Finais}
 	
-	\ldots
+	No contexto deste programa, serão utilizados quatro classificadores faciais já treinados e implementados no OpenCV. Assumindo que técnicas de aprendizado de máquina geram variabilidade nos resultados e, ao mesmo tempo, buscando a maior acurácia possível no processo, os resultados gerados por cada classificador serão analisados a partir de três estatísticas descritivas, a saber, a média, a moda e a variância. Esses indicadores possibilitam saber quando os classificadores estão em alta concordância ou quando a variabilidade dos dados fica tão alta que compromete a contagem automatizada de rostos. A partir disso, o RASTREIA pode identificar manualmente os casos com alta variabilidade e monitorar por amostra os resultados da contagem para as demais regiões.
+	
+	Essa inovação possibilita o uso inteligente dos dados, dos recursos à disposição, de tecnologia de ponta via utilização de ferramentas de código aberto bem como transparência nos processos.
 	
 	
 	\newpage
