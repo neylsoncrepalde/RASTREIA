@@ -1,4 +1,4 @@
-\documentclass[a4paper, 12pt, openright, oneside, german, french, english, brazil, article]{abntex2}
+\documentclass[a4paper, 12pt, openright, oneside, english, brazil, article]{abntex2}
 \usepackage[brazil]{babel}
 \usepackage{graphicx}
 \usepackage[utf8]{inputenc}
@@ -16,11 +16,17 @@
 \floatname{algorithm}{Código}
 \renewcommand{\listalgorithmname}{Lista de Códigos}
 \usepackage{algpseudocode} %para escrever pseudo-algoritmos
+\usepackage{TikZ}
 \usepackage{listings} %para escrever códigos
+
 \pagestyle{plain}
 
 \titulo{\textbf{O uso de inteligência artificial no acompanhamento do programa Juventudes}}
-\autor{Neylson J. B. F. Crepalde, PhD candidate}
+\autor{Neylson Crepalde, PhD candidate
+		\par
+		Wesley Matheus, PhD candidate
+		\par
+		Pedro Pinto}
 \data{Fevereiro, 2017}
 \instituicao{RASTREIA
 	\par
@@ -29,6 +35,17 @@
 \tipotrabalho{Relatório técnico}
 
 \begin{document}
+	
+	\thispagestyle{empty}
+	\begin{tikzpicture}[remember picture, overlay]
+	\node[inner sep=0pt] at (current page.center) {%
+		\includegraphics[width=\paperwidth,height=\paperheight]{Capa_rastreia.png}%
+	};
+	\end{tikzpicture}
+	\cleardoublepage{}
+	
+
+	\newpage
 	
 	\imprimirfolhaderosto
 	
@@ -42,16 +59,72 @@
 	
 	\section*{Introdução}
 	
-	Muito embora estejamos vivenciando um período de grandes inovações e avanços tecnológicos, informacionais e computacionais como nunca antes vistos, o acesso a esse conhecimento bem como seu uso na máquina estatal é ainda sobremameira restrito. A despeito disso, a Diretoria de Monitaramento e Avaliação em seu projeto intitulado \textbf{RASTREIA} busca sanar esta lacuna aproximando a gestão pública desses avanços visando sua aplicação no monitoramento contínuo das ações da Secretaria do Estado de Trabalho e Desenvolvimento Social e do Estado de Minas Gerais.
+	Muito embora estejamos vivenciando um período de grandes inovações e avanços tecnológicos, informacionais e computacionais como nunca antes vistos, o acesso a esse conhecimento bem como seu uso na máquina estatal é ainda sobremameira restrito. A despeito disso, a Diretoria de Monitoramento e Avaliação, doravante \textbf{RASTREIA}, busca sanar essa lacuna aproximando a gestão pública desses avanços visando sua aplicação no monitoramento contínuo das ações da Secretaria do Estado de Trabalho e Desenvolvimento Social e do Governo do Estado de Minas Gerais.
 	
 	\section*{O sistema \textit{Acompanha} -- REVISAR}
 	
 	O sistema \textit{Acompanha} foi desenvolvido na SEDESE com o intuito de acompanhar e oferecer um suporte aos alunos participantes das oficinas oferecidas dentro do programa \textit{Juventudes}. O sistema recebe informações sobre os alunos, sobre os professores e sobre a turma. Um dos objetivos do sistema é verificar a quantidade de alunos atendidos pelo programa em cada regional. A fiscalização da veracidade das informações alimentadas no sistema pelos gestores das regionais é demasiado custosa dado o grande número de alunos atendidos pelo programa e sua distribuição em X localidades do estado mineiro. Como uma solução para esse problema, os gestores das regionais serão incentivados a enviar algumas fotos da turma ao longo das atividades formativas as quais serão utilizadas para verificação do número de alunos através de contagem de rostos automatizada. Explicitamos mais detidamente de que modo a contagem de rostos em fotos é realizada.
 	
-	\section{\textit{Computer Vision}}
+	\section*{\textit{Computer Vision}}
 	
-	O OpenCV (CONTINUA)\ldots
+	O OpenCV (\textit{Open Source Computer Vision}) é um módulo computacional amplamente utilizado para processamento de imagens que começou a ser desenvolvido pela \textbf{Intel} no final da década de 1990. O módulo trabalha com 3 algoritmos de classificação, a saber, \textit{Eigenfaces}, \textit{Fisherfaces} e \textit{Local Binary Patterns Histograms}. Foi demonstrado\footnote{De acordo com documentação oficial do módulo. Disponível em \url{http://docs.opencv.org/3.1.0/da/d60/tutorial_face_main.html}, acesso em 08 fev 2017.} que os algoritmos disponíveis proveem resultados bastante parecidos. Explicitaremos, em linhas gerais, a lógica por trás do algoritmo.
+	
+	\subsection*{O método}
+	
+	O método \textit{Eigenfaces} usa da estrutura geométrica da face para efetuar o reconhecimento: ``Uma imagem facial é um ponto no espaço de uma imagem de alta dimensionalidade e uma representação de menor dimensão é encontrada onde a classificação torna-se fácil\footnote{A facial image is a point from a high-dimensional image space and a lower-dimensional representation is found, where classification becomes easy.}''. Esse subespaço de menor dimensão é encontrado com Análise de Componentes Principais, uma técnica matemática de análise multivariada. Uma descrição formal do método \textit{Eigenfaces} é apresentada na nota metodológica em anexo.
+	
+	\section*{Considerações Finais}
+	
+	\ldots
 	
 	
+	\newpage
+	\postextual
+	\anexos
+	\section*{Anexo - Nota Metodológica}
+	Descrevemos abaixo o procedimento do algoritmo \textit{Eigenfaces} para classificação facial:
+	
+	Seja $X = \{x_1, x_2, \ldots, x_n\}$ um vetor aleatório com observações $x_i \in R^d$.
+	
+	\begin{enumerate}
+		\item Calcula-se a média $\mu$
+		$$\mu = \frac{1}{n} \sum_{i=1}^{n}x_i$$
+		
+		\item Calcula-se a matrix de covariância $S$
+		$$S = \frac{1}{n} \sum_{i=1}^{n}(x_i - \mu)(x_i - \mu)^T$$
+		
+		\item Calcula-se os autovalores $\lambda_i$ e autovetores $v_i$ de $S$
+		$$Sv_i = \lambda_iv_i, i=1,2,\ldots,n$$
+		
+		\item Ordena-se os autovetores pelos valores descendentes de seu autovalor. Os $k$ componentes principais são os autovetores correspondentes aos $k$ maiores autovalores.		
+	\end{enumerate}
+
+	Os $k$ componentes principais do vetor $x$ observado são, portanto, dados por:
+	$$y = W^T(x-\mu)$$
+	onde $W = (v_1, v_2, \ldots, v_k)$. 
+	
+	A reconstrução da base PCA é dada por:
+	$$x = Wy + \mu$$
+
+	\textit{Eigenfaces} então efetua o reconhecimento facial:
+	\begin{itemize}
+		\item Projetando todas as amostras de treinamento no espaço do PCA.
+		\item Projetando a imagem analisada no espaço do PCA.
+		\item Encontrando o vizinho mais próximo (\textit{nearest neighbor}) entre as imagens de treino projetadas e a imagem investigada projetada.
+	\end{itemize}
+
+	
+	
+	
+	
+	\newpage
+	
+	\thispagestyle{empty}
+	\begin{tikzpicture}[remember picture, overlay]
+	\node[inner sep=0pt] at (current page.center) {%
+		\includegraphics[width=\paperwidth,height=\paperheight]{Contracapa_rastreia.png}%
+	};
+	\end{tikzpicture}
+	\cleardoublepage{}
 	
 \end{document}
