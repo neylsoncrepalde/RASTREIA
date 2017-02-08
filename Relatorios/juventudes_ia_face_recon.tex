@@ -61,9 +61,16 @@
 	
 	Muito embora estejamos vivenciando um período de grandes inovações e avanços tecnológicos, informacionais e computacionais como nunca antes vistos, o acesso a esse conhecimento bem como seu uso na máquina estatal é ainda sobremameira restrito. A despeito disso, a Diretoria de Monitoramento e Avaliação, doravante \textbf{RASTREIA}, busca sanar essa lacuna aproximando a gestão pública desses avanços visando sua aplicação no monitoramento contínuo das ações da Secretaria do Estado de Trabalho e Desenvolvimento Social e do Governo do Estado de Minas Gerais.
 	
-	\section*{O sistema \textit{Acompanha} -- REVISAR}
+	\section*{O sistema \textit{Acompanha}}
 	
-	O sistema \textit{Acompanha} foi desenvolvido na SEDESE com o intuito de acompanhar e oferecer um suporte aos alunos participantes das oficinas oferecidas dentro do programa \textit{Juventudes}. O sistema recebe informações sobre os alunos, sobre os professores e sobre a turma. Um dos objetivos do sistema é verificar a quantidade de alunos atendidos pelo programa em cada regional. A fiscalização da veracidade das informações alimentadas no sistema pelos gestores das regiões é demasiado custosa dado o grande número de alunos atendidos pelo programa e sua distribuição em X localidades do estado mineiro. Como uma solução para esse problema, os gestores das regiões serão incentivados a enviar algumas fotos da turma ao longo das atividades formativas as quais serão utilizadas para verificação do número de alunos através de contagem de rostos automatizada. Explicitamos mais detidamente de que modo a contagem de rostos em fotos é realizada.
+	O sistema \textit{Acompanha} foi desenvolvido na SEDESE com o intuito de acompanhar e oferecer um suporte aos alunos participantes das oficinas oferecidas dentro do programa \textit{Juventudes}. O sistema recebe informações sobre os alunos, sobre os professores e sobre a turma. Um dos objetivos do sistema é verificar a quantidade de alunos atendidos pelo programa em cada regional. A fiscalização da veracidade das informações é demasiado custosa dado o grande número de alunos atendidos pelo programa e sua distribuição em 4 municípios (9 regiões) do estado mineiro. Como uma solução para esse problema, as instituições serão solicitadas a enviar algumas fotos da turma ao longo das atividades formativas as quais serão utilizadas para verificação do número de alunos através de contagem de rostos automatizada (ver Figura \ref{face_class}). Explicitaremos abaixo, mais detidamente, de que modo a contagem de rostos é realizada.
+	
+	\begin{figure}[!h]
+		\centering
+		\caption{Aplicação de teste com OpenCV}
+		\label{face_class}
+		\includegraphics[scale=.45]{face_reco1.png}
+	\end{figure}
 	
 	\section*{\textit{Computer Vision}}
 	
@@ -71,11 +78,11 @@
 	
 	\subsection*{O método}
 	
-	O método \textit{Eigenfaces} usa da estrutura geométrica da face para efetuar o reconhecimento: ``Uma imagem facial é um ponto no espaço de uma imagem de alta dimensionalidade e uma representação de menor dimensão é encontrada onde a classificação torna-se fácil\footnote{A facial image is a point from a high-dimensional image space and a lower-dimensional representation is found, where classification becomes easy.}''. Esse subespaço de menor dimensão é encontrado com Análise de Componentes Principais, uma técnica matemática de análise multivariada. Uma descrição formal do método \textit{Eigenfaces} é apresentada na nota metodológica em anexo.
+	O método \textit{Eigenfaces} (padrão do módulo) usa da estrutura geométrica da face para efetuar o reconhecimento: ``Uma imagem facial é um ponto no espaço de uma imagem de alta dimensionalidade e uma representação de menor dimensão é encontrada onde a classificação torna-se fácil\footnote{A facial image is a point from a high-dimensional image space and a lower-dimensional representation is found, where classification becomes easy.}''. Esse subespaço de menor dimensão é encontrado com Análise de Componentes Principais, uma técnica matemática de análise multivariada. Uma descrição formal do método \textit{Eigenfaces} é apresentada na nota metodológica em anexo.
 	
-	\section*{Considerações Finais}
+	\section*{Análise dos dados}
 	
-	No contexto deste programa, serão utilizados quatro classificadores faciais já treinados e implementados no OpenCV. Assumindo que técnicas de aprendizado de máquina geram variabilidade nos resultados e, ao mesmo tempo, buscando a maior acurácia possível no processo, os resultados gerados por cada classificador serão analisados a partir de três estatísticas descritivas, a saber, a média, a moda e a variância. Esses indicadores possibilitam saber quando os classificadores estão em alta concordância ou quando a variabilidade dos dados fica tão alta que compromete a contagem automatizada de rostos. A partir disso, o RASTREIA pode identificar manualmente os casos com alta variabilidade e monitorar por amostra os resultados da contagem para as demais regiões.
+	No contexto deste programa, serão utilizados quatro classificadores faciais já treinados e implementados no OpenCV. Assumindo que técnicas de inteligência artificial geram variabilidade nos resultados e, ao mesmo tempo, buscando a maior acurácia possível no processo, os resultados gerados por cada classificador serão analisados a partir de três estatísticas descritivas, a saber, a média, a moda e a variância. Esses indicadores possibilitam saber quando os classificadores estão em alta concordância ou quando a variabilidade dos dados fica demasiado alta, comprometendo a contagem automatizada de rostos. A partir disso, o RASTREIA pode identificar manualmente os casos com alta variabilidade e monitorar por amostra os resultados da contagem para as demais regiões.
 	
 	Essa inovação possibilita o uso inteligente dos dados, dos recursos à disposição, de tecnologia de ponta via utilização de ferramentas de código aberto bem como transparência nos processos.
 	
