@@ -1,0 +1,47 @@
+---
+title: "JUVENTUDES - Rede de Instituições Parceiras"
+author: "RASTREIA"
+date: "9 de fevereiro de 2017"
+output: html_notebook
+---
+
+### Controle das aplicações de questionários
+
+```{r, echo=FALSE}
+library(ggplot2)
+library(data.table)
+library(bit64)
+library(DT)
+library(magrittr)
+library(descr)
+
+setwd('C:/Users/x6905399/Documents/RASTREIA/JUVENTUDES')
+redes = fread('rede_instituicoes_parceiras.csv', encoding="UTF-8") %>% 
+  as.data.frame(., stringsAsFactors=F)
+
+datatable(freq(redes[,4], plot=F))
+```
+
+### Fluxo das aplicações
+
+```{r, echo=FALSE}
+library(ggthemes)
+datas = as.data.frame(table(redes[,5]), stringsAsFactors = F)
+datas$Var1 = datas$Var1 %>% dmy %>% as_date
+limits = c(20170106,20170209) %>% ymd %>% as_date
+
+ggplot(datas, aes(x=Var1, y=Freq))+geom_line(lwd=1)+
+  scale_x_date(date_minor_breaks = '1 week', date_breaks = '1 week',
+               date_labels = '%d/%m', limits = limits)+
+  labs(x='',y='Número de questionários')
+```
+
+
+# Perfil das Instituições
+
+```{r}
+
+```
+
+
+
