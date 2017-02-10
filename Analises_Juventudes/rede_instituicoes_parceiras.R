@@ -196,7 +196,90 @@ wordcloud(dem_nao_atend, min.freq=2,max.words=100, random.order=F, colors=pal2)
 title(xlab='Demandas não atendidas')
 par(mfrow=c(1,1))
 
+################################################
+# Parcerias e participaçao política
 
+freq(redes[,46],plot=F)
+freq(redes[,47],plot=F)
+freq(redes[,48],plot=F)
+freq(redes[,49],plot=F)
+
+tab4 = table(redes[,46]) %>% as.data.frame(.,stringsAsFactors=F)
+tab5 = table(redes[,48]) %>% as.data.frame(.,stringsAsFactors=F)
+
+g4 = ggplot(tab4, aes(x=Var1,y=Freq))+geom_bar(stat='identity',fill='#ffd42a')+
+  labs(x='',y='',title='A instituição participa de rede local?')
+g5 = ggplot(tab5, aes(x=Var1,y=Freq))+geom_bar(stat='identity',fill='#ffd42a')+
+  labs(x='',y='',title='Participa de espaços de discussão política?')
+
+multiplot(g4,g5, cols=2)
+
+parcerias = redes[,c(8,47,49)]
+names(parcerias) = c('Instituição','Rede local','Espaços de discussão política')
+datatable(parcerias)
+
+
+#################################
+# Rede de cooperação entre instituições
+
+
+
+
+# Parcerias que poderiam ser feitas
+freq(redes[,45], plot=F)
+
+# Avaliação de parcerias
+freq(redes[,50],plot=F) # Como avalia a parceria?
+tab3 = table(redes[,50]) %>% as.data.frame(., stringsAsFactors=F)
+tab3$Var1 = as.factor(tab3$Var1) %>% as.factor
+ggplot(tab3, aes(x=ordered(Var1, levels=c('Péssimo','Ruim','Médio','Bom')),
+                 y=Freq))+geom_bar(stat='identity',fill='#ffd42a')+
+  labs(x='',y='',title='Como avalia o trabalho em parceria?')+coord_flip()
+
+freq(redes[,51],plot=F) # Porque?
+
+avalia_parceria = redes[,c(8,50,51)]
+names(avalia_parceria) = c('Instituição', 'Como você avalia o trabalho em parceria?','Porque?')
+datatable(avalia_parceria)
+
+
+# Interesse em parceria com JUVENTUDES
+freq(redes[,52],plot=F) #interesse?
+freq(redes[,53],plot=F) #possibilidades
+interesse = table(redes[,52]) %>% as.data.frame(., stringsAsFactors=F)
+possibilidades = strsplit(redes[,53], ', ', fixed=T) %>% unlist
+
+g1 = ggplot(interesse, aes(x=Var1,y=Freq))+geom_bar(stat='identity',fill='#ffd42a')+
+  labs(title='Existe interesse em parceria com JUVENTUDES?',x='',y='')
+g2 = ggplot(NULL, aes(possibilidades))+geom_bar(fill='#ffd42a')+
+  labs(x='',y='',title='Possibilidades de parceria com JUVENTUDES')+
+  coord_flip()
+
+
+###################################################
+# Rede de parceiros
+# Vars 42, 43, 44, 8
+# Tem que limpar os dados!!! :(
+freq(redes[,42],plot=F)
+
+
+
+
+
+
+
+
+
+
+#######################################################################
+
+coletivos = fread('coletivos.csv', encoding="UTF-8") %>% 
+  as.data.frame(., stringsAsFactors=F)
+
+View(coletivos)
+names(coletivos)
+
+coletivos[,4][coletivos[,4] == "Jaqueline"] = "Jaqueline Silva"
 
 
 
