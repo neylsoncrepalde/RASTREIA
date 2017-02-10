@@ -210,3 +210,69 @@ title(xlab='Demandas não atendidas')
 par(mfrow=c(1,1))
 ```
 
+
+# Parcerias e participação política
+
+```{r, echo=FALSE, fig.width=10, fig.height=4, message=FALSE}
+tab4 = table(redes[,46]) %>% as.data.frame(.,stringsAsFactors=F)
+tab5 = table(redes[,48]) %>% as.data.frame(.,stringsAsFactors=F)
+
+g4 = ggplot(tab4, aes(x=Var1,y=Freq))+geom_bar(stat='identity',fill='#ffd42a')+
+  labs(x='',y='',title='A instituição participa de rede local?')
+g5 = ggplot(tab5, aes(x=Var1,y=Freq))+geom_bar(stat='identity',fill='#ffd42a')+
+  labs(x='',y='',title='Participa de espaços de discussão política?')
+
+multiplot(g4,g5, cols=2)
+```
+
+
+### Redes locais e espaços de discussão da política de juventudes
+
+```{r, echo=FALSE}
+parcerias = redes[,c(8,47,49)]
+names(parcerias) = c('Instituição','Rede local','Espaços de discussão política')
+datatable(parcerias)
+```
+
+
+# Avaliação das parcerias
+
+```{r, echo=FALSE}
+tab3 = table(redes[,50]) %>% as.data.frame(., stringsAsFactors=F)
+tab3$Var1 = as.factor(tab3$Var1) %>% as.factor
+ggplot(tab3, aes(x=ordered(Var1, levels=c('Péssimo','Ruim','Médio','Bom')),
+                 y=Freq))+geom_bar(stat='identity',fill='#ffd42a')+
+  labs(x='',y='',title='Como avalia o trabalho em parceria?')+coord_flip()
+```
+
+```{r, echo=FALSE}
+avalia_parceria = redes[,c(8,50,51)]
+names(avalia_parceria) = c('Instituição', 'Como você avalia os trabalhos em parceria?','Porque?')
+datatable(avalia_parceria)
+```
+
+
+# Redes de cooperação entre instituições
+...
+
+
+
+# Cooperação com JUVENTUDES
+
+```{r, echo=FALSE}
+interesse = table(redes[,52]) %>% as.data.frame(., stringsAsFactors=F)
+possibilidades = strsplit(redes[,53], ', ', fixed=T) %>% unlist
+
+ggplot(interesse, aes(x=Var1,y=Freq))+geom_bar(stat='identity',fill='#ffd42a')+
+  labs(title='Existe interesse em parceria com JUVENTUDES?',x='',y='')
+```
+
+### Possibilidades de parceria com JUVENTUDES
+
+```{r, echo=FALSE, fig.width=12, fig.height=6, message=FALSE}
+ggplot(NULL, aes(possibilidades))+geom_bar(fill='#ffd42a')+
+  labs(x='',y='')+coord_flip()
+```
+
+
+
