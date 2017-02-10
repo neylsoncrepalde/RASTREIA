@@ -261,12 +261,49 @@ g2 = ggplot(NULL, aes(possibilidades))+geom_bar(fill='#ffd42a')+
 # Vars 42, 43, 44, 8
 # Tem que limpar os dados!!! :(
 freq(redes[,42],plot=F)
+freq(redes[,43],plot=F)
+freq(redes[,44],plot=F)
 
+View(redes[,42:44])
 
+rede_cooperacao = data.frame(redes[,c(8,42:44)])
 
+#write.table(rede_cooperacao, 'rede_cooperacao_bruta.csv', sep=',', row.names = F,
+#            fileEncoding = 'UTF-8')
+names(rede_cooperacao) = c('Instituição','Inst. Gov. Parceiras',
+                           'ONGs parceiras','Coletivos Parceiros')
+rede_cooperacao[,1] %<>% tolower
+rede_cooperacao[,2] %<>% tolower
+rede_cooperacao[,3] %<>% tolower
+rede_cooperacao[,4] %<>% tolower
+View(rede_cooperacao)
 
+library(tidyr)
+gov = rede_cooperacao[,c(1,2)]
+ong = rede_cooperacao[,c(1,3)]
+coletivo = rede_cooperacao[,c(1,4)]
 
+# Rede com inst gov
+View(gov)
+gov = gov %>% mutate(corrigido = strsplit(gov[,2], ', ')) %>% unnest(corrigido)
+gov = gov %>% mutate(corrigido2 = strsplit(corrigido, '; ')) %>% unnest(corrigido2)
+gov = gov %>% mutate(corrigido3 = strsplit(corrigido2, ';')) %>% unnest(corrigido3)
+gov$corrigido3 %<>% removePunctuation
 
+rede_gov = cbind(gov$Instituição,gov$corrigido3)
+library(igraph)
+g_gov = graph_from_edgelist(rede_gov)
+indeg = degree(g_gov, mode='in')
+plot(g_gov, vertex.size=indeg, vertex.label.cex=(indeg+1)/6, 
+     vertex.label.color=adjustcolor('blue',.7), edge.arrow.size=.3)
+title(main = 'Principais requisitados')
+outdeg = degree(g_gov, mode='out')
+plot(g_gov, vertex.size=outdeg, vertex.label.cex=(outdeg+1)/10, 
+     vertex.label.color=adjustcolor('blue',.7), edge.arrow.size=.3)
+title(main = 'Instituições mais ativas')
+
+# rede com inst NAO gov
+# programar...
 
 
 
