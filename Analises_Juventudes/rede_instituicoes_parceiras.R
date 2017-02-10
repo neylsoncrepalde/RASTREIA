@@ -281,7 +281,7 @@ View(rede_cooperacao)
 library(tidyr)
 gov = rede_cooperacao[,c(1,2)]
 ong = rede_cooperacao[,c(1,3)]
-coletivo = rede_cooperacao[,c(1,4)]
+coletivos = rede_cooperacao[,c(1,4)]
 
 # Rede com inst gov
 View(gov)
@@ -302,14 +302,57 @@ plot(g_gov, vertex.size=outdeg, vertex.label.cex=(outdeg+1)/10,
      vertex.label.color=adjustcolor('blue',.7), edge.arrow.size=.3)
 title(main = 'Instituições mais ativas')
 
+###################################
 # rede com inst NAO gov
 # programar...
+ong = ong %>% mutate(corrigido = strsplit(ong[,2], ', ')) %>% unnest(corrigido)
+ong = ong %>% mutate(corrigido2 = strsplit(corrigido, '; ')) %>% unnest(corrigido2)
+ong = ong %>% mutate(corrigido3 = strsplit(corrigido2, ';')) %>% unnest(corrigido3)
+ong$corrigido3 %<>% removePunctuation
+
+View(rede_ong)
+
+rede_ong = cbind(ong$Instituição,ong$corrigido3)
+mudar = which(rede_ong[,2] == '')
+rede_ong[,2][mudar] = 'nenhum'
+
+g_ong = graph_from_edgelist(rede_ong)
+indeg = degree(g_ong, mode='in')
+plot(g_ong, vertex.size=indeg, vertex.label.cex=(indeg+1)/5, 
+     vertex.label.color=adjustcolor('blue',.7), edge.arrow.size=.3)
+title(main = 'Principais requisitados')
+outdeg = degree(g_ong, mode='out')
+plot(g_ong, vertex.size=outdeg, vertex.label.cex=(outdeg+1)/7, 
+     vertex.label.color=adjustcolor('blue',.7), edge.arrow.size=.3)
+title(main = 'Instituições mais ativas')
+
+########################
+# rede coletivos
+coletivos = coletivos %>% mutate(corrigido = strsplit(coletivos[,2], ', ')) %>% unnest(corrigido)
+coletivos = coletivos %>% mutate(corrigido2 = strsplit(corrigido, '; ')) %>% unnest(corrigido2)
+coletivos = coletivos %>% mutate(corrigido3 = strsplit(corrigido2, ';')) %>% unnest(corrigido3)
+coletivos$corrigido3 %<>% removePunctuation
+
+rede_coletivos = cbind(coletivos$Instituição,coletivos$corrigido3)
+mudar = which(rede_coletivos[,2] == '')
+rede_coletivos[,2][mudar] = 'nenhum'
+View(rede_coletivos)
 
 
+g_coletivos = graph_from_edgelist(rede_coletivos)
+g_coletivos = delete.vertices(g_coletivos, 'nenhum')
+indeg = degree(g_coletivos, mode='in')
+plot(g_coletivos, vertex.size=indeg, vertex.label.cex=(indeg+1)/3, 
+     vertex.label.color=adjustcolor('blue',.7), edge.arrow.size=.3)
+title(main = 'Principais requisitados')
+outdeg = degree(g_coletivos, mode='out')
+plot(g_coletivos, vertex.size=outdeg, vertex.label.cex=(outdeg+1)/6, 
+     vertex.label.color=adjustcolor('blue',.7), edge.arrow.size=.3)
+title(main = 'Instituições mais ativas')
 
 
 #######################################################################
-
+# Paramos aqui!
 coletivos = fread('coletivos.csv', encoding="UTF-8") %>% 
   as.data.frame(., stringsAsFactors=F)
 
