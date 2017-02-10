@@ -253,8 +253,95 @@ datatable(avalia_parceria)
 
 
 # Redes de cooperação entre instituições
-...
 
+### Parcerias com instituições governamentais
+```{r, include=FALSE}
+rede_cooperacao = data.frame(redes[,c(8,42:44)])
+names(rede_cooperacao) = c('Instituição','Inst. Gov. Parceiras',
+                           'ONGs parceiras','Coletivos Parceiros')
+rede_cooperacao[,1] %<>% tolower
+rede_cooperacao[,2] %<>% tolower
+rede_cooperacao[,3] %<>% tolower
+rede_cooperacao[,4] %<>% tolower
+
+library(tidyr)
+gov = rede_cooperacao[,c(1,2)]
+ong = rede_cooperacao[,c(1,3)]
+coletivos = rede_cooperacao[,c(1,4)]
+
+# Rede com inst gov
+gov = gov %>% mutate(corrigido = strsplit(gov[,2], ', ')) %>% unnest(corrigido)
+gov = gov %>% mutate(corrigido2 = strsplit(corrigido, '; ')) %>% unnest(corrigido2)
+gov = gov %>% mutate(corrigido3 = strsplit(corrigido2, ';')) %>% unnest(corrigido3)
+gov$corrigido3 %<>% removePunctuation
+
+rede_gov = cbind(gov$Instituição,gov$corrigido3)
+library(igraph)
+```
+
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE,fig.width=10, fig.height=8}
+g_gov = graph_from_edgelist(rede_gov)
+indeg = degree(g_gov, mode='in')
+plot(g_gov, vertex.size=indeg, vertex.label.cex=(indeg+1)/6, 
+     vertex.label.color=adjustcolor('blue',.7), edge.arrow.size=.3)
+title(main = 'Principais requisitados')
+outdeg = degree(g_gov, mode='out')
+plot(g_gov, vertex.size=outdeg, vertex.label.cex=(outdeg+1)/10, 
+     vertex.label.color=adjustcolor('blue',.7), edge.arrow.size=.3)
+title(main = 'Instituições mais ativas')
+```
+
+### Parcerias com instituições não governamentais
+
+```{r, include=F}
+#plotagens
+ong = ong %>% mutate(corrigido = strsplit(ong[,2], ', ')) %>% unnest(corrigido)
+ong = ong %>% mutate(corrigido2 = strsplit(corrigido, '; ')) %>% unnest(corrigido2)
+ong = ong %>% mutate(corrigido3 = strsplit(corrigido2, ';')) %>% unnest(corrigido3)
+ong$corrigido3 %<>% removePunctuation
+rede_ong = cbind(ong$Instituição,ong$corrigido3)
+mudar = which(rede_ong[,2] == '')
+rede_ong[,2][mudar] = 'nenhum'
+```
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE,fig.width=10, fig.height=8}
+g_ong = graph_from_edgelist(rede_ong)
+indeg = degree(g_ong, mode='in')
+plot(g_ong, vertex.size=indeg, vertex.label.cex=(indeg+1)/3, 
+     vertex.label.color=adjustcolor('blue',.7), edge.arrow.size=.3)
+title(main = 'Principais requisitados')
+outdeg = degree(g_ong, mode='out')
+plot(g_ong, vertex.size=outdeg, vertex.label.cex=(outdeg+1)/6, 
+     vertex.label.color=adjustcolor('blue',.7), edge.arrow.size=.3)
+title(main = 'Instituições mais ativas')
+```
+
+#### Parcerias com coletivos, grupos, movimentos juvenis ou referências comunitárias
+
+```{r, include=FALSE}
+coletivos = coletivos %>% mutate(corrigido = strsplit(coletivos[,2], ', ')) %>% unnest(corrigido)
+coletivos = coletivos %>% mutate(corrigido2 = strsplit(corrigido, '; ')) %>% unnest(corrigido2)
+coletivos = coletivos %>% mutate(corrigido3 = strsplit(corrigido2, ';')) %>% unnest(corrigido3)
+coletivos$corrigido3 %<>% removePunctuation
+
+rede_coletivos = cbind(coletivos$Instituição,coletivos$corrigido3)
+mudar = which(rede_coletivos[,2] == '')
+rede_coletivos[,2][mudar] = 'nenhum'
+```
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE,fig.width=10, fig.height=8}
+g_coletivos = graph_from_edgelist(rede_coletivos)
+g_coletivos = delete.vertices(g_coletivos, 'nenhum')
+indeg = degree(g_coletivos, mode='in')
+plot(g_coletivos, vertex.size=indeg, vertex.label.cex=(indeg+1)/2, 
+     vertex.label.color=adjustcolor('blue',.7), edge.arrow.size=.3)
+title(main = 'Principais requisitados')
+outdeg = degree(g_coletivos, mode='out')
+plot(g_coletivos, vertex.size=outdeg, vertex.label.cex=(outdeg+1)/4, 
+     vertex.label.color=adjustcolor('blue',.7), edge.arrow.size=.3)
+title(main = 'Instituições mais ativas')
+```
 
 
 # Cooperação com JUVENTUDES
