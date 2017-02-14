@@ -57,7 +57,7 @@ library(dplyr)
 library(lubridate)
 library(ggplot2)
 
-setwd("C:/Users/x6905399/Documents/RASTREIA/JUVENTUDES")
+setwd("~/Documentos/RASTREIA")
 
 dados = fread('emprego_empreendedorismo.csv', encoding="UTF-8") %>% 
   as.data.frame(., stringsAsFactors=F) %>% .[-2,]
@@ -135,52 +135,28 @@ library(sp)
 library(ggmap)
 BH = get_map(location = c(lon=-44.06,lat=-19.92), zoom = 11)
 mapPoints <- ggmap(BH)+geom_point(data=locais, shape=21, aes(x = lon, y = lat,size=`% Válido`),
-                                  colour='black',fill=adjustcolor('red',.5))+labs(title='Economias locais na RMBH')
+                                  colour='black',fill=adjustcolor('red',.5))+labs(title='RMBH')
 mapPoints
-
-# plotando mapa interativo com googleVis
-#library(plotGoogleMaps)
-#RMBH@polygons %<>% as.SpatialPolygons.PolygonsList
-#map = plotGoogleMaps(RMBH@polygons[[1]],
-#                     zoom = 11, clickable = T)
-#plot(map)
-##############################
-#library(googleVis)
-#help("gvisGeoMap")
-#datagvis = data.frame(locationvar = paste0(locais$lat,':',locais$lon), hovervar=locais$nomes,
-#                      numvar = locais$`% Válido`, stringsAsFactors = F)
-#map = gvisGeoChart(datagvis, "locationvar", sizevar = 'numvar', hovervar = 'hovervar',
-#                   options = list(region='BR',resolution='provinces',
-#                                            width=1000, height=600))
-#plot(map)
 
 ##################################
 # Com Leaflet
 ##################################
-library(rgdal)
 library(leaflet)
-
-minas = readShapePoly('31MUE250GC_SIR.shp')
-#map(minas, col="#191919", fill=TRUE, bg="#000000", lwd=0.08)
-RMBH = subset(minas, minas$CD_GEOCMU == 3106200, fit.bbox=T)
-palette <- colorBin(c('#fee0d2',  #an example color scheme. you can substitute your own colors
-                      '#fcbba1',
-                      '#fc9272',
-                      '#fb6a4a',
-                      '#ef3b2c',
-                      '#cb181d',
-                      '#a50f15',
-                      '#67000d'), 
-                    bins = c(0, 5, 8, 10, 12, 14, 18, 24, 26))
-
-popup1 <- paste0("<span style='color: #7f0000'><strong>Número de empreendimentos</strong></span>",
-                 "<br><span style='color: salmon;'><strong>District: </strong></span>", 
-                 locais$`% Válido`)
 mymap <- leaflet() %>% 
   addProviderTiles("OpenStreetMap.Mapnik",
                    options = tileOptions(minZoom=10, maxZoom=16)) %>% #"freeze" the mapwindow to max and min zoomlevel
-  #CONTINUA!!!
+  setView(-44.06,-19.92, zoom=10) %>%
+  addCircleMarkers(lng=locais$lon,
+            lat=locais$lat,
+            radius = locais$`% Válido`,
+            color = 'blue',
+            fillColor = 'blue',
+            popup = paste0("<b>",locais$nomes,"</b><br>Número de Empreendimentos:<br><b>",locais$Frequência,"</b>")
+  )
+
+print(mymap)
   
+
   
   
   
