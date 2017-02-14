@@ -1,9 +1,10 @@
 ---
 title: "JUVENTUDES - Rede de Instituições Parceiras"
-author: "RASTREIA"
-date: "9 de fevereiro de 2017"
+date: "14 de fevereiro de 2017"
 output: html_notebook
 ---
+
+![](C:/Users/x6905399/Documents/RASTREIA/RastreiaLogo.png)
 
 ### Controle das aplicações de questionários
 
@@ -60,6 +61,7 @@ library(bit64)
 library(DT)
 library(magrittr)
 library(descr)
+library(lubridate)
 
 setwd('C:/Users/x6905399/Documents/RASTREIA/JUVENTUDES')
 redes = fread('rede_instituicoes_parceiras.csv', encoding="UTF-8") %>% 
@@ -276,6 +278,13 @@ gov = gov %>% mutate(corrigido3 = strsplit(corrigido2, ';')) %>% unnest(corrigid
 gov$corrigido3 %<>% removePunctuation
 
 rede_gov = cbind(gov$Instituição,gov$corrigido3)
+qual = c()
+for (node in 1:nrow(rede_gov)){
+  if(rede_gov[node,1] == ""){
+    qual = c(qual,node)
+  }
+}
+rede_gov[qual,1] = 'nenhum'
 library(igraph)
 ```
 
@@ -303,6 +312,14 @@ ong$corrigido3 %<>% removePunctuation
 rede_ong = cbind(ong$Instituição,ong$corrigido3)
 mudar = which(rede_ong[,2] == '')
 rede_ong[,2][mudar] = 'nenhum'
+
+qual = c()
+for (node in 1:nrow(rede_ong)){
+  if(rede_ong[node,1] == ""){
+    qual = c(qual,node)
+  }
+}
+rede_ong[qual,1] = 'nenhum'
 ```
 
 ```{r, echo=FALSE, message=FALSE, warning=FALSE,fig.width=10, fig.height=8}
@@ -328,6 +345,14 @@ coletivos$corrigido3 %<>% removePunctuation
 rede_coletivos = cbind(coletivos$Instituição,coletivos$corrigido3)
 mudar = which(rede_coletivos[,2] == '')
 rede_coletivos[,2][mudar] = 'nenhum'
+
+qual = c()
+for (node in 1:nrow(rede_coletivos)){
+  if(rede_coletivos[node,1] == ""){
+    qual = c(qual,node)
+  }
+}
+rede_coletivos[qual,1] = 'nenhum'
 ```
 
 ```{r, echo=FALSE, message=FALSE, warning=FALSE,fig.width=10, fig.height=8}
