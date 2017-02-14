@@ -119,6 +119,7 @@ locais = mutate(locais,
 locais
 
 #plota o mapa
+library(sp)
 #minas = readShapePoly('31MUE250GC_SIR.shp')
 #map(minas, col="#191919", fill=TRUE, bg="#000000", lwd=0.08)
 #RMBH = subset(minas, minas$CD_GEOCMU == 3106200, fit.bbox=T)
@@ -138,18 +139,49 @@ mapPoints <- ggmap(BH)+geom_point(data=locais, shape=21, aes(x = lon, y = lat,si
 mapPoints
 
 # plotando mapa interativo com googleVis
-library(googleVis)
-mapas = as.data.frame(RMBH@polygons)
-map <- gvisGeoMap(data=RMBH@polygons, locationvar = locais$nomes, numvar=locais$`% Válido`,options=list(width='800px',heigth='500px',colors="['0x0000ff', '0xff0000']"))
-plot(map)
-
-library(plotGoogleMaps)
-map = plotGoogleMaps(BH)
-
+#library(plotGoogleMaps)
+#RMBH@polygons %<>% as.SpatialPolygons.PolygonsList
+#map = plotGoogleMaps(RMBH@polygons[[1]],
+#                     zoom = 11, clickable = T)
+#plot(map)
 ##############################
-library(googleVis)
-help("gvisGeoMap")
-datagvis = data.frame(locationvar = paste0(locais$lat,':',locais$lon), hovervar=locais$nomes,
-                      numvar = locais$`% Válido`, stringsAsFactors = F)
-map = gvisGeoChart(datagvis, options = list(region='Belo Horizonte'))
-plot(map)
+#library(googleVis)
+#help("gvisGeoMap")
+#datagvis = data.frame(locationvar = paste0(locais$lat,':',locais$lon), hovervar=locais$nomes,
+#                      numvar = locais$`% Válido`, stringsAsFactors = F)
+#map = gvisGeoChart(datagvis, "locationvar", sizevar = 'numvar', hovervar = 'hovervar',
+#                   options = list(region='BR',resolution='provinces',
+#                                            width=1000, height=600))
+#plot(map)
+
+##################################
+# Com Leaflet
+##################################
+library(rgdal)
+library(leaflet)
+
+minas = readShapePoly('31MUE250GC_SIR.shp')
+#map(minas, col="#191919", fill=TRUE, bg="#000000", lwd=0.08)
+RMBH = subset(minas, minas$CD_GEOCMU == 3106200, fit.bbox=T)
+palette <- colorBin(c('#fee0d2',  #an example color scheme. you can substitute your own colors
+                      '#fcbba1',
+                      '#fc9272',
+                      '#fb6a4a',
+                      '#ef3b2c',
+                      '#cb181d',
+                      '#a50f15',
+                      '#67000d'), 
+                    bins = c(0, 5, 8, 10, 12, 14, 18, 24, 26))
+
+popup1 <- paste0("<span style='color: #7f0000'><strong>Número de empreendimentos</strong></span>",
+                 "<br><span style='color: salmon;'><strong>District: </strong></span>", 
+                 locais$`% Válido`)
+mymap <- leaflet() %>% 
+  addProviderTiles("OpenStreetMap.Mapnik",
+                   options = tileOptions(minZoom=10, maxZoom=16)) %>% #"freeze" the mapwindow to max and min zoomlevel
+  #CONTINUA!!!
+  
+  
+  
+  
+  
