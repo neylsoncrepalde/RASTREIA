@@ -57,7 +57,7 @@ library(dplyr)
 library(lubridate)
 library(ggplot2)
 
-setwd("~/Documentos/RASTREIA")
+setwd("C:/Users/x6905399/Documents/RASTREIA/JUVENTUDES")
 
 dados = fread('emprego_empreendedorismo.csv', encoding="UTF-8") %>% 
   as.data.frame(., stringsAsFactors=F) %>% .[-2,]
