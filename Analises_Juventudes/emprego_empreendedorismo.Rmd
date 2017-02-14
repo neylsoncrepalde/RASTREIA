@@ -117,15 +117,22 @@ locais = mutate(locais,
                         -19.945829,-20.039762,-19.962187,-19.965879,-19.916447),
                 lon = c(-43.919928,-43.893466,-44.228331,-43.882842,-43.925793,-44.117417,
                         -43.963345,-44.216812,-43.947033,-44.014811,-43.885229))
-library(ggmap)
-BH = get_map(location = c(lon=-44.06,lat=-19.92), zoom = 11)
+library(leaflet)
 ```
 
 ```{r, echo=FALSE, fig.height=6, fig.width=9}
-mapPoints <- ggmap(BH)+geom_point(data=locais, shape=21, aes(x = lon, y = lat,size=`% Válido`),
-                                  colour='black',fill=adjustcolor('red',.5))+labs(title='Economias locais na RMBH')+
-  scale_size_continuous(name='% - Percentual de\nempreendimentos visitados')
-mapPoints
+mymap <- leaflet() %>% 
+  addProviderTiles("OpenStreetMap.Mapnik",
+                   options = tileOptions(minZoom=10, maxZoom=16)) %>% #"freeze" the mapwindow to max and min zoomlevel
+  setView(-44.06,-19.92, zoom=10) %>%
+  addCircleMarkers(lng=locais$lon,
+            lat=locais$lat,
+            radius = locais$`% Válido`,
+            color = 'blue',
+            fillColor = 'blue',
+            popup = paste0("<b>",locais$nomes,"</b><br>Número de Empreendimentos:<br><b>",locais$Frequência,"</b>")
+  )
+mymap
 ```
 
 
