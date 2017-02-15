@@ -1,14 +1,13 @@
 ---
-title: "JUVENTUDES - Rede de Instituições Parceiras"
-date: "14 de fevereiro de 2017"
+title: "Rede de Instituições Parceiras"
+subtitle: "Análises descritivas dos dados"
+date: "15 de fevereiro de 2017"
 output: html_notebook
 ---
 
 ![](C:/Users/x6905399/Documents/RASTREIA/RastreiaLogo.png)
 
-### Controle das aplicações de questionários
-
-```{r, echo=FALSE}
+```{r, include=FALSE}
 ##############################################
 # Multiple plot function
 #
@@ -63,31 +62,26 @@ library(magrittr)
 library(descr)
 library(lubridate)
 
+#Carregando os bancos de dados
 setwd('C:/Users/x6905399/Documents/RASTREIA/JUVENTUDES')
 redes = fread('rede_instituicoes_parceiras.csv', encoding="UTF-8") %>% 
   as.data.frame(., stringsAsFactors=F)
+coletivos = fread('coletivos.csv', encoding="UTF-8") %>% 
+  as.data.frame(., stringsAsFactors=F)
+referencias = fread('referencias_comunitarias.csv', encoding="UTF-8") %>% 
+  as.data.frame(., stringsAsFactors=F) %>% .[-1,]
+
+redes$tipo = 'Instituição'
+coletivos$tipo = 'Coletivo'
+referencias$tipo = 'Referência'
+
 redes[,4][redes[,4] == "Jaqueline"] = "Jaqueline Silva"
+redes[,4][redes[,4] == "paula neres"] = "Paula Neres"
+coletivos[,4][coletivos[,4] == "Jaqueline"] = "Jaqueline Silva"
+referencias[,4][referencias[,4] == "Jaqueline"] = "Jaqueline Silva"
 
-tabela = freq(redes[,4], plot=F) %>% as.data.frame(., stringsAsFactors=F)
-tabela$pertotal = (tabela[,1] * 100) / 25
-names(tabela) = c('Frequência', 'Porcentagem','Percentual do total (25)')
-datatable(tabela[-nrow(tabela),c(1,3)])
+names(coletivos)[3] = 'Serviço'
 ```
-
-### Fluxo das aplicações
-
-```{r, echo=FALSE}
-library(ggthemes)
-datas = as.data.frame(table(redes[,5]), stringsAsFactors = F)
-datas$Var1 = datas$Var1 %>% dmy %>% as_date
-limits = c(20170106,20170215) %>% ymd %>% as_date
-
-ggplot(datas, aes(x=Var1, y=Freq))+geom_line(lwd=1)+
-  scale_x_date(date_minor_breaks = '1 week', date_breaks = '1 week',
-               date_labels = '%d/%m', limits = limits)+
-  labs(x='',y='Número de questionários')
-```
-
 
 # Perfil das Instituições
 
