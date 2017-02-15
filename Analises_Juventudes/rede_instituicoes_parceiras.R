@@ -56,33 +56,134 @@ library(magrittr)
 library(descr)
 library(lubridate)
 
+#Carregando os bancos de dados
 setwd('C:/Users/x6905399/Documents/RASTREIA/JUVENTUDES')
 redes = fread('rede_instituicoes_parceiras.csv', encoding="UTF-8") %>% 
   as.data.frame(., stringsAsFactors=F)
+coletivos = fread('coletivos.csv', encoding="UTF-8") %>% 
+  as.data.frame(., stringsAsFactors=F)
+referencias = fread('referencias_comunitarias.csv', encoding="UTF-8") %>% 
+  as.data.frame(., stringsAsFactors=F) %>% .[-1,]
 
-View(redes)
+redes$tipo = 'Instituição'
+coletivos$tipo = 'Coletivo'
+referencias$tipo = 'Referência'
+
+names(redes)[1:10]
+names(coletivos)[1:10]
+names(referencias)[1:10]
+
+#View(redes)
 names(redes)
-
 redes[,4][redes[,4] == "Jaqueline"] = "Jaqueline Silva"
+redes[,4][redes[,4] == "paula neres"] = "Paula Neres"
+#View(coletivos)
+names(coletivos)
+coletivos[,4][coletivos[,4] == "Jaqueline"] = "Jaqueline Silva"
+names(referencias)
+referencias[,4][referencias[,4] == "Jaqueline"] = "Jaqueline Silva"
 
 #Monitorando questionários
 freq(redes[,4], plot=F)
+freq(coletivos[,4], plot=F)
+freq(referencias[,4], plot=F)
 
-tabela = freq(redes[,4], plot=F) %>% as.data.frame(., stringsAsFactors=F)
+names(coletivos)[3] = 'Serviço'
+entregas = rbind(redes[,c(1:4,54)], coletivos[,c(1:4,54)], referencias[,c(1:4,21)])
+entregas$publica = 'Outra'
+
+for (i in 1:nrow(redes)){
+  result <- ifelse(redes[i,6] == 'Privada', 'Privada', 'Pública')
+  entregas$publica[i] <- result
+}
+
+
+
+tabela = freq(entregas[,4], plot=F) %>% as.data.frame(., stringsAsFactors=F)
 tabela$pertotal = (tabela[,1] * 100) / 25
-datatable(tabela[-nrow(tabela),c(1,3)])
+tabela$pertotal2 = paste0(as.character(tabela$pertotal),'%')
+names(tabela) = c('Total de Entregas', 'Percentual','Percentual piso','Percentual do piso (25)')
+
+datatable(tabela[-nrow(tabela),c(1,4)])
+
+#Verificando entregas por tipo de consulta
+library(tidyr)
+
+tabela_tipo = entregas %>% dplyr::group_by(`Nome do Mobilizador(a):`) %>% 
+  count(tipo) %>% spread(., tipo, n)
+for (var in 2:ncol(tabela_tipo)){
+  for (row in 1:nrow(tabela_tipo)){
+    if (is.na(tabela_tipo[row,var])){
+      tabela_tipo[row,var] <- 0
+    }
+  }
+}
+datatable(tabela_tipo)
+
+tabela_pubpri = entregas %>% dplyr::group_by(`Nome do Mobilizador(a):`) %>% 
+  count(publica) %>% spread(., publica, n)
+for (var in 2:ncol(tabela_pubpri)){
+  for (row in 1:nrow(tabela_pubpri)){
+    if (is.na(tabela_pubpri[row,var])){
+      tabela_pubpri[row,var] <- 0
+    }
+  }
+}
+datatable(tabela_pubpri)
 
 
 #Plotando questionários por dia
-freq(redes[,5], plot=F)
-datas = as.data.frame(table(redes[,5]), stringsAsFactors = F)
-datas$Var1 = datas$Var1 %>% dmy %>% as_date
-limits = c(20170106,20170215) %>% ymd %>% as_date
+datas_de_entrega = c(redes[,1],coletivos[,1],referencias[,1]) %>% dmy_hms %>% as_date
+freq(datas_de_entrega, plot=F)
 
-ggplot(datas, aes(x=Var1, y=Freq))+geom_line()+
-  scale_x_date(date_minor_breaks = '1 week', date_breaks = '1 week',
+datas = as.data.frame(table(datas_de_entrega), stringsAsFactors = F)
+datas$datas_de_entrega = datas$datas_de_entrega %>% ymd %>% as_date
+limits = c(20170201,20170218) %>% ymd %>% as_date
+names(datas) = c('Datas de Entrega','Formulários Enviados')
+
+g = ggplot(datas, aes(x=`Datas de Entrega`, y=`Formulários Enviados`))+geom_line(lwd=1)+
+  scale_x_date(date_minor_breaks = '1 day', date_breaks = '2 days',
                date_labels = '%d/%m', limits = limits)+
-  labs(x='',y='Número de questionários')
+  labs(x='Data de entrega do',y='Número de questionários')
+library(plotly)
+ggplotly(g)
+
+############################
+# Plotando mapa das regiões
+head(entregas)
+entregas$servico = entregas$Serviço 
+entregas = entregas %>% separate(servico, c('parte1','regiao'), ' / ')
+names(entregas)
+
+entregas$regiao %>% freq(., plot=F)
+entregas2 = entregas %>% separate(regiao, c('r1','r2','r3','r4'), ' e ')
+regioes_desag = c(entregas2$r1, entregas2$r2, entregas2$r3, entregas2$r4)
+for (i in 1:length(regioes_desag)){
+  if (is.na(regioes_desag[i])){
+    next
+  }  
+  if (regioes_desag[i] == 'Santa Rita'){
+    regioes_desag[i] <- 'Santa Rita de Cássia'
+    #print('sim')
+  }
+}
+locais = freq(regioes_desag, plot=F) %>% as.data.frame(., stringsAsFactors=F) %>%
+  .[-c(nrow(.), nrow(.)-1),]
+locais$Locais = rownames(locais)
+locais = mutate(locais,
+                nomes = rownames(locais),
+                lat = c(-19.939045,-19.912857,-20.027582,-19.948919,-19.802896,
+                        -19.907773,-19.828723,-19.916681,#jardim teresópolis
+                        -19.945829,-19.858375,-19.863601, #papagaio
+                        -19.836808,-19.962187,-19.953818,-19.916447),
+                lon = c(-43.919928,-43.893466,-44.228331,-43.940996,-43.997121,
+                        -43.882842,-43.925793,-43.934493, #jardim teresópolis
+                        -43.963345,-44.024482,-43.898408, #papagaio
+                        -43.937718,-43.947033,-43.941464,-43.885229))
+locais
+
+
+
 
 #####################################
 # Perfil das instituições
@@ -353,13 +454,6 @@ title(main = 'Instituições mais ativas')
 
 #######################################################################
 # Paramos aqui!
-coletivos = fread('coletivos.csv', encoding="UTF-8") %>% 
-  as.data.frame(., stringsAsFactors=F)
-
-View(coletivos)
-names(coletivos)
-
-coletivos[,4][coletivos[,4] == "Jaqueline"] = "Jaqueline Silva"
 
 
 
