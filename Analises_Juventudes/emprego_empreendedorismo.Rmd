@@ -20,6 +20,7 @@ library(ggplot2)
 library(maptools)
 library(maps)
 library(tidyr)
+library(plotly)
 ##############################################
 # Multiple plot function
 #
@@ -95,11 +96,13 @@ dados[150,5] = '06/02/2017'
 datas = as.data.frame(table(dados[,5]), stringsAsFactors = F)
 datas$Var1 = datas$Var1 %>% dmy %>% as_date
 limits = c(20170101,20170215) %>% ymd %>% as_date
-
-ggplot(datas, aes(x=Var1, y=Freq))+geom_line(lwd=1)+
+names(datas) = c('Data','Questionários')
+g = ggplot(datas, aes(x=Data, y=Questionários))+geom_line(lwd=1)+
   scale_x_date(date_minor_breaks = '1 week', date_breaks = '1 week',
                date_labels = '%d/%m', limits = limits)+
   labs(x='',y='Número de questionários')
+
+ggplotly(g)
 ```
 
 
