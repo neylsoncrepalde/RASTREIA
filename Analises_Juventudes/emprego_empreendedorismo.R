@@ -56,12 +56,13 @@ library(descr)
 library(dplyr)
 library(lubridate)
 library(ggplot2)
+library(plotly)
 
 setwd("C:/Users/x6905399/Documents/RASTREIA/JUVENTUDES")
 
 dados = fread('emprego_empreendedorismo.csv', encoding="UTF-8") %>% 
-  as.data.frame(., stringsAsFactors=F) %>% .[-2,]
-
+  as.data.frame(., stringsAsFactors=F)
+dados[,4][dados[,4] == 'Moisés Ezequiel Macedo'] = 'Moisés Ezequiel Macêdo'
 names(dados)
 
 # Monitorando a aplicação de questionários
@@ -79,19 +80,33 @@ datatable(tabela[-nrow(tabela),c(5,1,4)])
 #Fluxo das aplicacoes de questionarios
 
 #corrigindo erro
+grep('2016', dados[,5])
+dados[76,5] = "06/01/2017"
+dados[148,5] = '06/02/2017'
+dados[149,5] = '06/02/2017'
+
+
 dados[170,5] = '13/02/2017'
 dados[83,5] = '10/02/2017'
-dados[149,5] = '06/02/2017'
+dados[147,5]
 dados[150,5] = '06/02/2017'
 
-datas = as.data.frame(table(dados[,5]), stringsAsFactors = F)
-datas$Var1 = datas$Var1 %>% dmy %>% as_date
-limits = c(20170101,20170215) %>% ymd %>% as_date
 
-ggplot(datas, aes(x=Var1, y=Freq))+geom_line(lwd=1)+
+
+datas = dados[,1] %>% dmy_hms %>% as_date %>%
+  table %>% as.data.frame(., stringsAsFactors=F)
+  
+limits = c(20170128,20170215) %>% ymd %>% as_date
+names(datas) = c('Data','Questionários')
+datas$Data %<>% as_date
+
+g = ggplot(datas, aes(x=Data, y=Questionários))+geom_line(lwd=1)+
   scale_x_date(date_minor_breaks = '1 week', date_breaks = '1 week',
                date_labels = '%d/%m', limits = limits)+
-  labs(x='',y='Número de questionários')
+  labs(x='Data de lançamento',y='Número de questionários')
+
+ggplotly(g)
+
 
 ########################
 #Plotando volume de aplicação nos locais 
@@ -119,7 +134,7 @@ locais = mutate(locais,
 locais
 
 #plota o mapa
-library(sp)
+#library(sp)
 #minas = readShapePoly('31MUE250GC_SIR.shp')
 #map(minas, col="#191919", fill=TRUE, bg="#000000", lwd=0.08)
 #RMBH = subset(minas, minas$CD_GEOCMU == 3106200, fit.bbox=T)
@@ -132,11 +147,11 @@ library(sp)
 #title('Região Metropolitana de Belo Horizonte',col.main="white", cex.main=1)
 
 #plotando com ggmap
-library(ggmap)
-BH = get_map(location = c(lon=-44.06,lat=-19.92), zoom = 11)
-mapPoints <- ggmap(BH)+geom_point(data=locais, shape=21, aes(x = lon, y = lat,size=`% Válido`),
-                                  colour='black',fill=adjustcolor('red',.5))+labs(title='RMBH')
-mapPoints
+#library(ggmap)
+#BH = get_map(location = c(lon=-44.06,lat=-19.92), zoom = 11)
+#mapPoints <- ggmap(BH)+geom_point(data=locais, shape=21, aes(x = lon, y = lat,size=`% Válido`),
+#                                  colour='black',fill=adjustcolor('red',.5))+labs(title='RMBH')
+#mapPoints
 
 ##################################
 # Com Leaflet
@@ -147,17 +162,16 @@ mymap <- leaflet() %>%
                    options = tileOptions(minZoom=10, maxZoom=16)) %>% #"freeze" the mapwindow to max and min zoomlevel
   setView(-44.06,-19.92, zoom=10) %>%
   addCircleMarkers(lng=locais$lon,
-            lat=locais$lat,
-            radius = locais$`% Válido`,
-            color = 'blue',
-            fillColor = 'blue',
-            popup = paste0("<b>",locais$nomes,"</b><br>Número de Empreendimentos:<br><b>",locais$Frequência,"</b>")
+                   lat=locais$lat,
+                   radius = locais$`% Válido`,
+                   color = 'blue',
+                   fillColor = 'blue',
+                   popup = paste0("<b>",locais$nomes,"</b><br>Número de Empreendimentos:<br><b>",locais$Frequência,"</b>")
   )
 
 print(mymap)
-  
 
-  
-  
-  
-  
+
+
+
+
