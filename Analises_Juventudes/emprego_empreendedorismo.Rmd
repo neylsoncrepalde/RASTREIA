@@ -3,7 +3,7 @@ title: "Oportunidades de Emprego e Empreendedorismo"
 output: html_notebook
 ---
 
-![](C:/Users/x6905399/Documents/RASTREIA/RastreiaLogo.png)
+![](https://raw.githubusercontent.com/neylsoncrepalde/RASTREIA/master/LogoRastreia.png)
 
 ### Monitoramento das aplicações dos questionários
 
