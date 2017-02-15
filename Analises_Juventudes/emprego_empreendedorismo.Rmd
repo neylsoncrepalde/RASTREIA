@@ -1,9 +1,10 @@
 ---
 title: "Oportunidades de Emprego e Empreendedorismo"
+date: "15 de fevereiro de 2017"
 output: html_notebook
 ---
 
-![](https://raw.githubusercontent.com/neylsoncrepalde/RASTREIA/master/LogoRastreia.png)
+![](C:/Users/x6905399/Documents/RASTREIA/RastreiaLogo.png)
 
 ### Monitoramento das aplicações dos questionários
 
@@ -68,6 +69,7 @@ multiplot <- function(..., plotlist=NULL, file, cols=1, layout=NULL) {
 setwd("C:/Users/x6905399/Documents/RASTREIA/JUVENTUDES")
 dados = fread('emprego_empreendedorismo.csv', encoding="UTF-8") %>% 
   as.data.frame(., stringsAsFactors=F) %>% .[-2,]
+dados[,4][dados[,4] == 'Moisés Ezequiel Macedo'] = 'Moisés Ezequiel Macêdo'
 ```
 
 ```{r, echo=FALSE}
@@ -78,6 +80,7 @@ tabela = mutate(tabela,
                 nomes = rownames(tabela))
 names(tabela) = c('Frequência','Percentual','Percentual do total',
                   'Percentual do total (50)', 'Nome do Consultor')
+
 datatable(tabela[-nrow(tabela),c(5,1,4)])
 ```
 
@@ -134,7 +137,6 @@ mymap <- leaflet() %>%
   )
 mymap
 ```
-
 
 
 
