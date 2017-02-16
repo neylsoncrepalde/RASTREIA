@@ -1,7 +1,7 @@
 ---
 title: "Rede de Instituições Parceiras"
 subtitle: "Monitoramento das Entregas"
-date: "15 de fevereiro de 2017"
+date: "16 de fevereiro de 2017"
 output: html_notebook
 ---
 
@@ -63,6 +63,8 @@ library(DT)
 library(magrittr)
 library(descr)
 library(lubridate)
+library(tidyr)
+library(dplyr)
 
 #Carregando os bancos de dados
 setwd('C:/Users/x6905399/Documents/RASTREIA/JUVENTUDES')
@@ -106,8 +108,6 @@ datatable(tabela[-nrow(tabela),c(1,4)])
 ### Entregas por tipo de formulário
 
 ```{r, echo=FALSE}
-library(tidyr)
-
 tabela_tipo = entregas %>% dplyr::group_by(`Nome do Mobilizador(a):`) %>% 
   count(tipo) %>% spread(., tipo, n)
 for (var in 2:ncol(tabela_tipo)){
@@ -186,7 +186,7 @@ locais = mutate(locais,
 library(leaflet)
 ```
 
-```{r, echo=FALSE}
+```{r, echo=FALSE, fig.width=9, fig.height=6}
 mymap <- leaflet() %>% 
   addProviderTiles("OpenStreetMap.Mapnik",
                    options = tileOptions(minZoom=10, maxZoom=16)) %>% #"freeze" the mapwindow to max and min zoomlevel
@@ -196,7 +196,7 @@ mymap <- leaflet() %>%
             radius = locais$`% Válido`,
             color = 'blue',
             fillColor = 'blue',
-            popup = paste0("<b>",locais$nomes,"</b><br>Número de Empreendimentos:<br><b>",locais$Frequência,"</b>")
+            popup = paste0("<b>",locais$nomes,"</b><br>Número de Entregas:<br><b>",locais$Frequência,"</b>")
   )
 mymap
 ```
