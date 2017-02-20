@@ -1,7 +1,7 @@
 ---
-title: "Rede de Instituições Parceiras"
+title: "Rede de Instituições Parceiras - GERAL"
 subtitle: "Análises descritivas dos dados"
-date: "15 de fevereiro de 2017"
+date: "20 de fevereiro de 2017"
 output: html_notebook
 ---
 
@@ -61,6 +61,9 @@ library(DT)
 library(magrittr)
 library(descr)
 library(lubridate)
+library(tidyr)
+library(dplyr)
+library(tm)
 
 #Carregando os bancos de dados
 setwd('C:/Users/x6905399/Documents/RASTREIA/JUVENTUDES')
@@ -81,84 +84,90 @@ coletivos[,4][coletivos[,4] == "Jaqueline"] = "Jaqueline Silva"
 referencias[,4][referencias[,4] == "Jaqueline"] = "Jaqueline Silva"
 
 names(coletivos)[3] = 'Serviço'
+
+
 ```
 
 # Perfil das Instituições
 
 ```{r, echo=FALSE}
-inst = data.frame(redes[,c(8,10,13,14,16,18,19)])
-names(inst) = c('Nome da instituição','Início das atividades','Bairro', 'Cidade',
-                'Telefone','Facebook','Responsável')
-datatable(inst)
+inst = data.frame(redes[,c(8,7,14,13,16,17,19)])
+colet = data.frame(coletivos[,c(8,7,13,12,15,16,18)])
+
+names(inst) = c('Nome da instituição','Área de atuação','Cidade', 'Bairro',
+                'Telefone','E-mail','Responsável')
+names(colet) = c('Nome da instituição','Área de atuação','Cidade', 'Bairro',
+                'Telefone','E-mail','Responsável')
+instituicoes = rbind(inst, colet)
+datatable(instituicoes)
 ```
 
-### Atividades oferecidas
+### Áreas de atuação das instituições
+
+```{r, echo=FALSE, fig.width=9, fig.height=7}
+area_atuacao = instituicoes$`Área de atuação` %>% strsplit(., ', ', fixed=T) %>%
+  unlist
+
+tab_area_atuacao = table(area_atuacao) %>% as.data.frame(., stringsAsFactors=F)
+
+ggplot(tab_area_atuacao, aes(area_atuacao, Freq))+
+  geom_bar(stat = 'identity',fill='#ffd42a')+
+  scale_x_discrete(limits=rev(levels(factor(tab_area_atuacao$area_atuacao))))+
+  labs(x='', y='')+coord_flip()
+```
+
+
+
+### Serviços oferecidos pelas instituições, coletivos e referências comunitárias
 
 ```{r, echo=FALSE}
-atividades = data.frame(redes[,c(8,38)])
-names(atividades) = c("Instituição","Principais serviços oferecidos")
-datatable(atividades)
+inst_ativ = c(redes[,8], coletivos[,8], referencias[,6])
+atividades = c(redes[,38], coletivos[,37], referencias[,13])
+ativ_realiz = data.frame(inst_ativ, atividades, stringsAsFactors = F)
+names(ativ_realiz) = c("Instituição/Coletivo/Referência","Principais serviços oferecidos")
+datatable(ativ_realiz)
 ```
 
 
-### Responsáveis pelas instituições
 
-```{r, echo=FALSE}
-resp = data.frame(redes[,c(19,21,25,26,27)])
-names(resp) = c('Responsável','Gênero','É morador da região?',
-                'Há quanto tempo mora?','Há quanto tempo trabalha na região?')
-datatable(resp)
-```
-
-
-### Inserção dos responsáveis nas regiões
-
-```{r, echo=FALSE, fig.width=10, fig.height=4}
-tab1 = table(redes[,26]) %>% as.data.frame(., stringsAsFactors=F)
-g1 = ggplot(tab1, aes(x=Var1, y=Freq))+
-  geom_bar(stat='identity', fill='#ffd42a')+
-  labs(x='',y='',title='Há quanto tempo mora na região?')+
-  coord_flip()
-tab2 = table(redes[,27]) %>% as.data.frame(., stringsAsFactors=F)
-g2 = ggplot(tab2, aes(x=Var1, y=Freq))+
-  geom_bar(stat='identity', fill='#ffd42a')+
-  labs(x='',y='',title='Há quanto tempo trabalha na região?')+
-  coord_flip()
-
-multiplot(g1,g2,cols=2)
-```
 
 
 # Público Atendido
 
-```{r, echo=FALSE}
-library(dplyr)
+```{r, echo=FALSE, message=FALSE, warning=FALSE, results='asis'}
+jovens1 = redes[,29]
+jovens2 = redes[,31]
+jovens3 = redes[,33]
 
-ja1 = freq(table(redes[,29]),plot=F) %>% 
-  as.data.frame %>% .[-nrow(.),] %>%
-  mutate(numero = as.numeric(rownames(.))) # 15-18
-ja2 = freq(table(redes[,31]),plot=F) %>% 
-  as.data.frame %>% .[-nrow(.),] %>% 
-  mutate(numero = as.numeric(rownames(.)))# 19-24
-ja3 = freq(table(redes[,33]),plot=F) %>% 
-  as.data.frame %>% .[-nrow(.),] %>% 
-  mutate(numero = as.numeric(rownames(.)))# 25-29
+jovens1 = jovens1 %>% removePunctuation %>% as.numeric
+jovens2 = jovens2 %>% removePunctuation %>% as.numeric
+jovens3 = jovens3 %>% removePunctuation %>% as.numeric
 
-total1 = ja1$Frequência*ja1$numero
-total2 = ja2$Frequência*ja2$numero
-total3 = ja3$Frequência*ja3$numero
-total = sum(total1,total2,total3)
+total = sum(jovens1, na.rm = T)+sum(jovens2, na.rm = T)+sum(jovens3, na.rm = T)
 
 jovens_atendidos = data.frame(idade=c('15-18','19-24','25-29','Total'),
-                              atendidos=c(sum(total1), sum(total2), sum(total3),
+                              atendidos=c(sum(jovens1, na.rm = T), 
+                                          sum(jovens2, na.rm = T), 
+                                          sum(jovens3, na.rm = T),
                                           total),
-                              percentuais=c((sum(total1)/total)*100,
-                                            (sum(total2)/total)*100,
-                                            (sum(total3)/total)*100,
+                              percentuais=c((sum(jovens1, na.rm = T)/total)*100,
+                                            (sum(jovens2, na.rm = T)/total)*100,
+                                            (sum(jovens3, na.rm = T)/total)*100,
                                             100))
 names(jovens_atendidos) = c('Faixa Etária','Quantidade de atendidos','Percentuais')
-datatable(jovens_atendidos)
+knitr::kable(jovens_atendidos)
 ```
+
+
+Este dado está bastante problemático. Não há padronização das repostas no questionário. Vejam alguns exemplos de respostas:
+
+
+
+```{r, echo=F}
+jovens_redes = cbind(redes[,c(29,31,33)])
+datatable(jovens_redes)
+```
+
 
 ## Dificuldades enfrentadas no atendimento aos jovens
 
@@ -173,7 +182,7 @@ dificuldades = redes[,39] %>% tolower %>% removePunctuation %>%
 
 corpus = Corpus(VectorSource(dificuldades))
 tdm <- TermDocumentMatrix(corpus)
-tdm <- removeSparseTerms(tdm, sparse = 0.94)
+tdm <- removeSparseTerms(tdm, sparse = 0.96)
 df <- as.data.frame(inspect(tdm))
 df.scale <- scale(df)
 d <- dist(df.scale, method = "euclidean")
@@ -210,11 +219,11 @@ par(mfrow=c(1,1))
 # Parcerias e participação política
 
 ```{r, echo=FALSE, fig.width=10, fig.height=4, message=FALSE}
-tab4 = table(redes[,46]) %>% as.data.frame(.,stringsAsFactors=F)
-tab5 = table(redes[,48]) %>% as.data.frame(.,stringsAsFactors=F)
+tab4 = table(c(redes[,46],coletivos[,43])) %>% as.data.frame(.,stringsAsFactors=F)
+tab5 = table(c(redes[,48],coletivos[,45])) %>% as.data.frame(.,stringsAsFactors=F)
 
 g4 = ggplot(tab4, aes(x=Var1,y=Freq))+geom_bar(stat='identity',fill='#ffd42a')+
-  labs(x='',y='',title='A instituição participa de rede local?')
+  labs(x='',y='',title='A instituição/coletivo participa de rede local?')
 g5 = ggplot(tab5, aes(x=Var1,y=Freq))+geom_bar(stat='identity',fill='#ffd42a')+
   labs(x='',y='',title='Participa de espaços de discussão política?')
 
@@ -225,8 +234,11 @@ multiplot(g4,g5, cols=2)
 ### Redes locais e espaços de discussão da política de juventudes
 
 ```{r, echo=FALSE}
-parcerias = redes[,c(8,47,49)]
-names(parcerias) = c('Instituição','Rede local','Espaços de discussão política')
+parcerias_redes = redes[,c(8,47,49)]
+parcerias_coletivos = coletivos[,c(8,44,46)]
+names(parcerias_redes) = c('Instituição/Coletivo','Rede local','Espaços de discussão política')
+names(parcerias_coletivos) = c('Instituição/Coletivo','Rede local','Espaços de discussão política')
+parcerias = rbind(parcerias_redes, parcerias_coletivos)
 datatable(parcerias)
 ```
 
@@ -234,7 +246,7 @@ datatable(parcerias)
 # Avaliação das parcerias
 
 ```{r, echo=FALSE}
-tab3 = table(redes[,50]) %>% as.data.frame(., stringsAsFactors=F)
+tab3 = table(c(redes[,50],coletivos[,47])) %>% as.data.frame(., stringsAsFactors=F)
 tab3$Var1 = as.factor(tab3$Var1) %>% as.factor
 ggplot(tab3, aes(x=ordered(Var1, levels=c('Péssimo','Ruim','Médio','Bom')),
                  y=Freq))+geom_bar(stat='identity',fill='#ffd42a')+
@@ -242,125 +254,14 @@ ggplot(tab3, aes(x=ordered(Var1, levels=c('Péssimo','Ruim','Médio','Bom')),
 ```
 
 ```{r, echo=FALSE}
-avalia_parceria = redes[,c(8,50,51)]
-names(avalia_parceria) = c('Instituição', 'Como você avalia os trabalhos em parceria?','Porque?')
+avalia_parceria_redes = redes[,c(8,50,51)]
+avalia_parceria_coletivos = coletivos[, c(8,47,48)]
+names(avalia_parceria_redes) = c('Instituição/Coletivo', 'Como você avalia os trabalhos em parceria?','Porque?')
+names(avalia_parceria_coletivos) = c('Instituição/Coletivo', 'Como você avalia os trabalhos em parceria?','Porque?')
+avalia_parceria = rbind(avalia_parceria_redes, avalia_parceria_coletivos)
 datatable(avalia_parceria)
 ```
 
-
-# Redes de cooperação entre instituições
-
-### Parcerias com instituições governamentais
-```{r, include=FALSE}
-rede_cooperacao = data.frame(redes[,c(8,42:44)])
-names(rede_cooperacao) = c('Instituição','Inst. Gov. Parceiras',
-                           'ONGs parceiras','Coletivos Parceiros')
-rede_cooperacao[,1] %<>% tolower
-rede_cooperacao[,2] %<>% tolower
-rede_cooperacao[,3] %<>% tolower
-rede_cooperacao[,4] %<>% tolower
-
-library(tidyr)
-gov = rede_cooperacao[,c(1,2)]
-ong = rede_cooperacao[,c(1,3)]
-coletivos = rede_cooperacao[,c(1,4)]
-
-# Rede com inst gov
-gov = gov %>% mutate(corrigido = strsplit(gov[,2], ', ')) %>% unnest(corrigido)
-gov = gov %>% mutate(corrigido2 = strsplit(corrigido, '; ')) %>% unnest(corrigido2)
-gov = gov %>% mutate(corrigido3 = strsplit(corrigido2, ';')) %>% unnest(corrigido3)
-gov$corrigido3 %<>% removePunctuation
-
-rede_gov = cbind(gov$Instituição,gov$corrigido3)
-qual = c()
-for (node in 1:nrow(rede_gov)){
-  if(rede_gov[node,1] == ""){
-    qual = c(qual,node)
-  }
-}
-rede_gov[qual,1] = 'nenhum'
-library(igraph)
-```
-
-
-```{r, echo=FALSE, message=FALSE, warning=FALSE,fig.width=10, fig.height=8}
-g_gov = graph_from_edgelist(rede_gov)
-indeg = degree(g_gov, mode='in')
-plot(g_gov, vertex.size=indeg, vertex.label.cex=(indeg+1)/6, 
-     vertex.label.color=adjustcolor('blue',.7), edge.arrow.size=.3)
-title(main = 'Principais requisitados')
-outdeg = degree(g_gov, mode='out')
-plot(g_gov, vertex.size=outdeg, vertex.label.cex=(outdeg+1)/10, 
-     vertex.label.color=adjustcolor('blue',.7), edge.arrow.size=.3)
-title(main = 'Instituições mais ativas')
-```
-
-### Parcerias com instituições não governamentais
-
-```{r, include=F}
-#plotagens
-ong = ong %>% mutate(corrigido = strsplit(ong[,2], ', ')) %>% unnest(corrigido)
-ong = ong %>% mutate(corrigido2 = strsplit(corrigido, '; ')) %>% unnest(corrigido2)
-ong = ong %>% mutate(corrigido3 = strsplit(corrigido2, ';')) %>% unnest(corrigido3)
-ong$corrigido3 %<>% removePunctuation
-rede_ong = cbind(ong$Instituição,ong$corrigido3)
-mudar = which(rede_ong[,2] == '')
-rede_ong[,2][mudar] = 'nenhum'
-
-qual = c()
-for (node in 1:nrow(rede_ong)){
-  if(rede_ong[node,1] == ""){
-    qual = c(qual,node)
-  }
-}
-rede_ong[qual,1] = 'nenhum'
-```
-
-```{r, echo=FALSE, message=FALSE, warning=FALSE,fig.width=10, fig.height=8}
-g_ong = graph_from_edgelist(rede_ong)
-indeg = degree(g_ong, mode='in')
-plot(g_ong, vertex.size=indeg, vertex.label.cex=(indeg+1)/3, 
-     vertex.label.color=adjustcolor('blue',.7), edge.arrow.size=.3)
-title(main = 'Principais requisitados')
-outdeg = degree(g_ong, mode='out')
-plot(g_ong, vertex.size=outdeg, vertex.label.cex=(outdeg+1)/6, 
-     vertex.label.color=adjustcolor('blue',.7), edge.arrow.size=.3)
-title(main = 'Instituições mais ativas')
-```
-
-#### Parcerias com coletivos, grupos, movimentos juvenis ou referências comunitárias
-
-```{r, include=FALSE}
-coletivos = coletivos %>% mutate(corrigido = strsplit(coletivos[,2], ', ')) %>% unnest(corrigido)
-coletivos = coletivos %>% mutate(corrigido2 = strsplit(corrigido, '; ')) %>% unnest(corrigido2)
-coletivos = coletivos %>% mutate(corrigido3 = strsplit(corrigido2, ';')) %>% unnest(corrigido3)
-coletivos$corrigido3 %<>% removePunctuation
-
-rede_coletivos = cbind(coletivos$Instituição,coletivos$corrigido3)
-mudar = which(rede_coletivos[,2] == '')
-rede_coletivos[,2][mudar] = 'nenhum'
-
-qual = c()
-for (node in 1:nrow(rede_coletivos)){
-  if(rede_coletivos[node,1] == ""){
-    qual = c(qual,node)
-  }
-}
-rede_coletivos[qual,1] = 'nenhum'
-```
-
-```{r, echo=FALSE, message=FALSE, warning=FALSE,fig.width=10, fig.height=8}
-g_coletivos = graph_from_edgelist(rede_coletivos)
-g_coletivos = delete.vertices(g_coletivos, 'nenhum')
-indeg = degree(g_coletivos, mode='in')
-plot(g_coletivos, vertex.size=indeg, vertex.label.cex=(indeg+1)/2, 
-     vertex.label.color=adjustcolor('blue',.7), edge.arrow.size=.3)
-title(main = 'Principais requisitados')
-outdeg = degree(g_coletivos, mode='out')
-plot(g_coletivos, vertex.size=outdeg, vertex.label.cex=(outdeg+1)/4, 
-     vertex.label.color=adjustcolor('blue',.7), edge.arrow.size=.3)
-title(main = 'Instituições mais ativas')
-```
 
 
 # Cooperação com JUVENTUDES
