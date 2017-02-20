@@ -80,7 +80,7 @@ datatable(tabela[-nrow(tabela),c(5,1,4)])
 #Fluxo das aplicacoes de questionarios
 
 #corrigindo erro
-grep('2016', dados[,5])
+grep('2012', dados[,5])
 dados[76,5] = "06/01/2017"
 dados[148,5] = '06/02/2017'
 dados[149,5] = '06/02/2017'
@@ -88,15 +88,19 @@ dados[149,5] = '06/02/2017'
 
 dados[170,5] = '13/02/2017'
 dados[83,5] = '10/02/2017'
-dados[147,5]
-dados[150,5] = '06/02/2017'
 
+dados[150,5] = '06/02/2017'
+dados[213,5] = '08/03/2017'
+dados[216,5] = '01/03/2017'
+dados[266,5] = '11/02/2017'
+
+freq(dados[,5],plot=F)
 
 
 datas = dados[,1] %>% dmy_hms %>% as_date %>%
   table %>% as.data.frame(., stringsAsFactors=F)
   
-limits = c(20170128,20170215) %>% ymd %>% as_date
+limits = c(20170128,20170225) %>% ymd %>% as_date
 names(datas) = c('Data','Questionários')
 datas$Data %<>% as_date
 
@@ -123,14 +127,22 @@ names(dados)
 dados$regiao %>% freq(., plot=F)
 dados2 = dados %>% separate(regiao, c('r1','r2','r3'), ' e ')
 regioes_desag = rbind(dados2$r1, dados2$r2, dados2$r3)
+
 locais = freq(regioes_desag, plot=F) %>% as.data.frame(., stringsAsFactors=F) %>%
   .[-c(nrow(.), nrow(.)-1),]
 locais = mutate(locais,
                 nomes = rownames(locais),
-                lat = c(-19.939045,-19.912857,-20.027582,-19.907773,-19.828723,-19.951469,
-                        -19.945829,-20.039762,-19.962187,-19.965879,-19.916447),
-                lon = c(-43.919928,-43.893466,-44.228331,-43.882842,-43.925793,-44.117417,
-                        -43.963345,-44.216812,-43.947033,-44.014811,-43.885229))
+                lat = c(-19.939045,-19.912857,-20.027582,-19.764419,
+                        -19.907773,-19.828723,-19.951469,
+                        
+                        -19.945829,-19.830853,
+                        -20.039762,-19.962187,-19.809883,-19.916447),
+                
+                lon = c(-43.919928,-43.893466,-44.228331,-44.145917,
+                        -43.882842,-43.925793,-44.117417,
+                        
+                        -43.963345,-44.150248,
+                        -44.216812,-43.947033,-43.887616,-43.885229))
 locais
 
 #plota o mapa
@@ -171,7 +183,26 @@ mymap <- leaflet() %>%
 
 print(mymap)
 
+#############################################
+# Proporções de empreendimentos por categoria
 
+universo = fread('percentual_empreendimentos.csv', dec = ',') %>% 
+  as.data.frame(., stringsAsFactors=F) %>% .[-22,]
+names(universo)
 
+# proporções no universo
+ggplot(universo, aes(x=`Descrição CNAE`, y=`Regiões JUVENTUDES`))+
+  geom_bar(stat='identity', fill='#ffd42a')+
+  labs(title='Proporções de tipos de empreendimentos no universo', x='',y='')+
+  scale_x_discrete(limits=rev(levels(factor(universo$`Descrição CNAE`))))+
+  coord_flip()
 
+# proporções na amostra
+names(dados[1:10])
+freq(dados[,6], plot=F)
+
+ggplot(dados, aes(`1.1 | Qual é o setor econômico do empreendimento?`))+
+  geom_bar(fill='#ffd42a')+
+  labs(title='Proporções de tipos de empreendimentos na amostra', x='',y='')+
+  coord_flip()
 
