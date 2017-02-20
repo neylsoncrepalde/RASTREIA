@@ -1,6 +1,6 @@
 ---
 title: "Oportunidades de Emprego e Empreendedorismo"
-date: "15 de fevereiro de 2017"
+date: "20 de fevereiro de 2017"
 output: html_notebook
 ---
 
@@ -17,6 +17,7 @@ library(descr)
 library(dplyr)
 library(lubridate)
 library(ggplot2)
+library(scales)
 library(maptools)
 library(maps)
 library(tidyr)
@@ -71,6 +72,7 @@ setwd("C:/Users/x6905399/Documents/RASTREIA/JUVENTUDES")
 dados = fread('emprego_empreendedorismo.csv', encoding="UTF-8") %>% 
   as.data.frame(., stringsAsFactors=F) %>% .[-2,]
 dados[,4][dados[,4] == 'Moisés Ezequiel Macedo'] = 'Moisés Ezequiel Macêdo'
+dados[,4][dados[,4] == 'FREDERICO MENDES'] = 'FREDERICO MENDES DE CARVALHO'
 ```
 
 ```{r, echo=FALSE}
@@ -88,19 +90,27 @@ datatable(tabela[-nrow(tabela),c(5,1,4)])
 ### Fluxo das aplicações
 
 ```{r, echo=FALSE, warning=FALSE}
+dados[76,5] = "06/01/2017"
+dados[148,5] = '06/02/2017'
+dados[149,5] = '06/02/2017'
 dados[170,5] = '13/02/2017'
 dados[83,5] = '10/02/2017'
-dados[149,5] = '06/02/2017'
 dados[150,5] = '06/02/2017'
+dados[213,5] = '08/03/2017'
+dados[216,5] = '01/03/2017'
+dados[266,5] = '11/02/2017'
 
-datas = as.data.frame(table(dados[,5]), stringsAsFactors = F)
-datas$Var1 = datas$Var1 %>% dmy %>% as_date
-limits = c(20170101,20170215) %>% ymd %>% as_date
+datas = dados[,1] %>% dmy_hms %>% as_date %>%
+  table %>% as.data.frame(., stringsAsFactors=F)
+  
+limits = c(20170128,20170225) %>% ymd %>% as_date
 names(datas) = c('Data','Questionários')
+datas$Data %<>% as_date
+
 g = ggplot(datas, aes(x=Data, y=Questionários))+geom_line(lwd=1)+
   scale_x_date(date_minor_breaks = '1 week', date_breaks = '1 week',
                date_labels = '%d/%m', limits = limits)+
-  labs(x='',y='Número de questionários')
+  labs(x='Data de lançamento',y='Número de questionários')
 
 ggplotly(g)
 ```
@@ -119,10 +129,17 @@ locais = freq(regioes_desag, plot=F) %>% as.data.frame(., stringsAsFactors=F) %>
   .[-c(nrow(.), nrow(.)-1),]
 locais = mutate(locais,
                 nomes = rownames(locais),
-                lat = c(-19.939045,-19.912857,-20.027582,-19.907773,-19.828723,-19.951469,
-                        -19.945829,-20.039762,-19.962187,-19.965879,-19.916447),
-                lon = c(-43.919928,-43.893466,-44.228331,-43.882842,-43.925793,-44.117417,
-                        -43.963345,-44.216812,-43.947033,-44.014811,-43.885229))
+                lat = c(-19.939045,-19.912857,-20.027582,-19.764419,
+                        -19.907773,-19.828723,-19.951469,
+                        
+                        -19.945829,-19.830853,
+                        -20.039762,-19.962187,-19.809883,-19.916447),
+                
+                lon = c(-43.919928,-43.893466,-44.228331,-44.145917,
+                        -43.882842,-43.925793,-44.117417,
+                        
+                        -43.963345,-44.150248,
+                        -44.216812,-43.947033,-43.887616,-43.885229))
 library(leaflet)
 ```
 
@@ -141,6 +158,39 @@ mymap <- leaflet() %>%
 mymap
 ```
 
+
+# Proporções de tipos de empreendimento
+
+```{r, echo=F, fig.width=9, fig.height=6}
+universo = fread('percentual_empreendimentos.csv', dec = ',') %>% 
+  as.data.frame(., stringsAsFactors=F)
+names(universo)[9] = "Regiões JUVENTUDES percent"
+universo = universo[-22,]
+
+# proporções no universo
+
+ggplot(universo, aes(x=`Descrição CNAE`, 
+                     y=`Regiões JUVENTUDES`/sum(universo$`Regiões JUVENTUDES`)))+
+  geom_bar(stat='identity', fill='#ffd42a')+
+  labs(title='Universo (percentual)', x='',y='')+
+  scale_x_discrete(limits=rev(levels(factor(universo$`Descrição CNAE`))))+
+  scale_y_continuous(labels=percent)+
+  coord_flip()
+```
+
+```{r, echo=F, fig.width=9, fig.height=6, message=FALSE, warning=FALSE}
+# proporções na amostra
+setor_amostra = freq(dados$`1.1 | Qual é o setor econômico do empreendimento?`,plot=F) %>%
+  as.data.frame(., stringsAsFactors=F)
+setor_amostra = mutate(setor_amostra,
+                       nome = rownames(setor_amostra))
+setor_amostra %<>% .[-nrow(setor_amostra),]
+ggplot(setor_amostra, aes(x=nome))+
+  geom_bar(aes(y=Frequência/sum(setor_amostra$Frequência)),stat='identity', fill='#ffd42a')+
+  labs(title='Amostra (percentual)', x='',y='')+
+  scale_y_continuous(labels=percent)+
+  coord_flip()
+```
 
 
 
