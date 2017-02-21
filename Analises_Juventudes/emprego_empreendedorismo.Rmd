@@ -1,7 +1,8 @@
 ---
 title: "Oportunidades de Emprego e Empreendedorismo"
-date: "20 de fevereiro de 2017"
-output: html_notebook
+output:
+  html_notebook: default
+date: "21 de fevereiro de 2017"
 ---
 
 ![](C:/Users/x6905399/Documents/RASTREIA/RastreiaLogo.png)
@@ -133,13 +134,13 @@ locais = mutate(locais,
                         -19.907773,-19.828723,-19.951469,
                         
                         -19.945829,-19.830853,
-                        -20.039762,-19.962187,-19.809883,-19.916447),
+                        -20.039762,-19.962187,-19.953818,-19.916447),
                 
                 lon = c(-43.919928,-43.893466,-44.228331,-44.145917,
                         -43.882842,-43.925793,-44.117417,
                         
                         -43.963345,-44.150248,
-                        -44.216812,-43.947033,-43.887616,-43.885229))
+                        -44.216812,-43.947033,-43.941464,-43.885229))
 library(leaflet)
 ```
 
