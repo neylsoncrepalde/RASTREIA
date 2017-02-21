@@ -1,7 +1,7 @@
 ---
 title: "Rede de Instituições Parceiras"
 subtitle: "Monitoramento das Entregas"
-date: "16 de fevereiro de 2017"
+date: "21 de fevereiro de 2017"
 output: html_notebook
 ---
 
@@ -141,7 +141,7 @@ datatable(tabela_pubpri)
 datas_de_entrega = c(redes[,1],coletivos[,1],referencias[,1]) %>% dmy_hms %>% as_date
 datas = as.data.frame(table(datas_de_entrega), stringsAsFactors = F)
 datas$datas_de_entrega = datas$datas_de_entrega %>% ymd %>% as_date
-limits = c(20170201,20170218) %>% ymd %>% as_date
+limits = c(20170201,20170225) %>% ymd %>% as_date
 names(datas) = c('Datas de Entrega','Formulários Enviados')
 
 g = ggplot(datas, aes(x=`Datas de Entrega`, y=`Formulários Enviados`))+geom_line(lwd=1)+
@@ -175,14 +175,14 @@ locais = freq(regioes_desag, plot=F) %>% as.data.frame(., stringsAsFactors=F) %>
   .[-c(nrow(.), nrow(.)-1),]
 locais = mutate(locais,
                 nomes = rownames(locais),
-                lat = c(-19.939045,-19.912857,-20.027582,-19.948919,-19.802896,
-                        -19.907773,-19.828723,-19.916681,#jardim teresópolis
-                        -19.945829,-19.858375,-19.863601, #papagaio
-                        -19.836808,-19.962187,-19.953818,-19.916447),
-                lon = c(-43.919928,-43.893466,-44.228331,-43.940996,-43.997121,
-                        -43.882842,-43.925793,-43.934493, #jardim teresópolis
-                        -43.963345,-44.024482,-43.898408, #papagaio
-                        -43.937718,-43.947033,-43.941464,-43.885229))
+                lat = c(-19.939045,-19.912857,-20.027582,-19.948919,-19.764419,
+                        -19.907773,-19.828723,-19.951469,#jardim teresópolis
+                        -19.945829,-19.828581,-19.863601, #papagaio
+                        -20.039762,-19.962187,-19.953818,-19.916447),
+                lon = c(-43.919928,-43.893466,-44.228331,-43.940996,-44.145917,
+                        -43.882842,-43.925793,-44.117417, #jardim teresópolis
+                        -43.963345,-44.150665,-43.898408, #papagaio
+                        -44.216812,-43.947033,-43.941464,-43.885229))
 library(leaflet)
 ```
 
