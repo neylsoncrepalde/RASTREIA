@@ -1,7 +1,7 @@
 ---
 title: "Rede de Instituições Parceiras"
 subtitle: "Monitoramento das Entregas"
-date: "21 de fevereiro de 2017"
+date: "22 de fevereiro de 2017"
 output: html_notebook
 ---
 
@@ -83,6 +83,9 @@ redes[,4][redes[,4] == "Jaqueline"] = "Jaqueline Silva"
 redes[,4][redes[,4] == "paula neres"] = "Paula Neres"
 coletivos[,4][coletivos[,4] == "Jaqueline"] = "Jaqueline Silva"
 referencias[,4][referencias[,4] == "Jaqueline"] = "Jaqueline Silva"
+referencias[,4][referencias[,4] == "Marcos Donizetti Da Silva"] = "Marcos Donizetti da Silva"
+redes[,4][redes[,4] == "Marcos Donizetti Da Silva"] = "Marcos Donizetti da Silva"
+coletivos[,4][coletivos[,4] == "Marcos Donizetti Da Silva"] = "Marcos Donizetti da Silva"
 
 names(coletivos)[3] = 'Serviço'
 ```
