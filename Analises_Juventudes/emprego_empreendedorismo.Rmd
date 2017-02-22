@@ -2,7 +2,7 @@
 title: "Oportunidades de Emprego e Empreendedorismo"
 output:
   html_notebook: default
-date: "21 de fevereiro de 2017"
+date: "22 de fevereiro de 2017"
 ---
 
 ![](C:/Users/x6905399/Documents/RASTREIA/RastreiaLogo.png)
@@ -104,7 +104,7 @@ dados[266,5] = '11/02/2017'
 datas = dados[,1] %>% dmy_hms %>% as_date %>%
   table %>% as.data.frame(., stringsAsFactors=F)
   
-limits = c(20170128,20170225) %>% ymd %>% as_date
+limits = c(20170129,20170225) %>% ymd %>% as_date
 names(datas) = c('Data','Questionários')
 datas$Data %<>% as_date
 
