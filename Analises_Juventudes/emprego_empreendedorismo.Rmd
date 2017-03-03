@@ -279,6 +279,31 @@ multiplot(g3,g4,cols=2)
 ```
 
 
-### PAREI NA VARIÁVEL 58
+### Avaliação da qualificação dos jovens que trabalharam/trabalham com o empreendedor entrevistado
 
+```{r, echo=F, message=FALSE, warning=FALSE}
+avalia_quali = freq(dados[,60],plot=F) %>% as.data.frame(.,stringsAsFactors=F)
+avalia_quali = mutate(avalia_quali,
+                      nome = rownames(avalia_quali))
+avalia_quali %<>% .[-nrow(avalia_quali),]
+
+ggplot(avalia_quali, aes(x=nome))+
+  geom_bar(aes(y=Frequência/sum(avalia_quali$Frequência)),stat='identity', fill='#ffd42a')+
+  labs(title='', x='',y='')+
+  scale_y_continuous(labels=percent)+
+  coord_flip()
+```
+
+### Principais dificuldades dos empreendimentos
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+dificuldades_empreend = dados[,c(89,77:81)]
+datatable(dificuldades_empreend)
+```
+
+### Potencialidades e possibilidades
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+datatable(dados[,c(89,82:84)])
+```
 
