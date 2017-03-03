@@ -63,6 +63,7 @@ setwd("C:/Users/x6905399/Documents/RASTREIA/JUVENTUDES")
 dados = fread('emprego_empreendedorismo.csv', encoding="UTF-8") %>% 
   as.data.frame(., stringsAsFactors=F)
 dados[,4][dados[,4] == 'Moisés Ezequiel Macedo'] = 'Moisés Ezequiel Macêdo'
+dados[,4][dados[,4] == 'FREDERICO MENDES'] = 'FREDERICO MENDES DE CARVALHO'
 names(dados)
 
 # Monitorando a aplicação de questionários
@@ -205,4 +206,8 @@ ggplot(dados, aes(`1.1 | Qual é o setor econômico do empreendimento?`))+
   geom_bar(fill='#ffd42a')+
   labs(title='Proporções de tipos de empreendimentos na amostra', x='',y='')+
   coord_flip()
+
+### Vagas de trabalho existentes nos empreendimentos
+### Separar tipos de trabalho por região
+### após limpeza e transformações para integer, multiplicar nome por número disponível
 
