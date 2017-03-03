@@ -104,7 +104,7 @@ dados[266,5] = '11/02/2017'
 datas = dados[,1] %>% dmy_hms %>% as_date %>%
   table %>% as.data.frame(., stringsAsFactors=F)
   
-limits = c(20170129,20170306) %>% ymd %>% as_date
+limits = c(20170129,20170227) %>% ymd %>% as_date
 names(datas) = c('Data','Questionários')
 datas$Data %<>% as_date
 
@@ -196,8 +196,8 @@ ggplot(setor_amostra, aes(x=nome))+
 ### Tipos de empreendimento
 
 ```{r, echo=F, warning=FALSE, message=FALSE}
-tipo_empreend = dados[,c(89,8,6,7)]
-names(tipo_empreend) = c('Região','Nome do empreendimento', 'Setor econômico', 'Tipo de empreendimento')
+tipo_empreend = dados[,c(8,6,7)]
+names(tipo_empreend) = c('Nome do empreendimento', 'Setor econômico', 'Tipo de empreendimento')
 datatable(tipo_empreend)
 ```
 
@@ -297,13 +297,13 @@ ggplot(avalia_quali, aes(x=nome))+
 ### Principais dificuldades dos empreendimentos
 
 ```{r, echo=FALSE, message=FALSE, warning=FALSE}
-dificuldades_empreend = dados[,c(89,77:81)]
+dificuldades_empreend = dados[,c(77:81)]
 datatable(dificuldades_empreend)
 ```
 
 ### Potencialidades e possibilidades
 
 ```{r, echo=FALSE, message=FALSE, warning=FALSE}
-datatable(dados[,c(89,82:84)])
+datatable(dados[,c(82:84)])
 ```
 
