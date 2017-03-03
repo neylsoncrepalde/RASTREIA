@@ -2,7 +2,7 @@
 title: "Oportunidades de Emprego e Empreendedorismo"
 output:
   html_notebook: default
-date: "22 de fevereiro de 2017"
+date: "03 de março de 2017"
 ---
 
 ![](C:/Users/x6905399/Documents/RASTREIA/RastreiaLogo.png)
@@ -104,7 +104,7 @@ dados[266,5] = '11/02/2017'
 datas = dados[,1] %>% dmy_hms %>% as_date %>%
   table %>% as.data.frame(., stringsAsFactors=F)
   
-limits = c(20170129,20170225) %>% ymd %>% as_date
+limits = c(20170129,20170306) %>% ymd %>% as_date
 names(datas) = c('Data','Questionários')
 datas$Data %<>% as_date
 
@@ -193,12 +193,92 @@ ggplot(setor_amostra, aes(x=nome))+
   coord_flip()
 ```
 
+### Tipos de empreendimento
+
+```{r, echo=F, warning=FALSE, message=FALSE}
+tipo_empreend = dados[,c(89,8,6,7)]
+names(tipo_empreend) = c('Região','Nome do empreendimento', 'Setor econômico', 'Tipo de empreendimento')
+datatable(tipo_empreend)
+```
+
+### Qualificações dos empreendedores
+
+```{r, echo=FALSE, warning=FALSE, message=FALSE, fig.width=12, fig.height=6}
+teve_quali = freq(dados[,23], plot=F) %>% as.data.frame(., stringsAsFactors=F)
+teve_quali = mutate(teve_quali,
+                       nome = rownames(teve_quali))
+teve_quali %<>% .[-nrow(teve_quali),]
+g1 = ggplot(teve_quali, aes(x=nome))+
+  geom_bar(aes(y=Frequência/sum(teve_quali$Frequência)),stat='identity', fill='#ffd42a')+
+  labs(title='Teve qualificação para empreender? (percentual)', x='',y='')+
+  scale_y_continuous(labels=percent)+
+  coord_flip()
+
+buscou_parceria = freq(dados[,26], plot=F) %>% as.data.frame(., stringsAsFactors=F)
+buscou_parceria = mutate(buscou_parceria,
+                         nome = rownames(buscou_parceria))
+buscou_parceria %<>% .[-nrow(buscou_parceria),]
+g2 = ggplot(buscou_parceria, aes(x=nome))+
+  geom_bar(aes(y=Frequência/sum(buscou_parceria$Frequência)),stat='identity', fill='#ffd42a')+
+  labs(title='Buscou ajuda ou parcerias para empreender? (percentual)', x='',y='')+
+  scale_y_continuous(labels=percent)+
+  coord_flip()
+
+multiplot(g1, g2, cols=2)
+```
+
+### Dificuldades para contratar jovens
+
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
+library(tm)
+library(wordcloud)
+pal2 = brewer.pal(8,'Dark2')
+
+dificuldades = dados[,48] %>% tolower %>% removePunctuation %>%
+  removeWords(., stopwords('pt'))
+Encoding(dificuldades) = 'latin1'
+
+wordcloud(dificuldades, min.freq=2,max.words=100, random.order=F, colors=pal2)
+```
+
+### Por que não costuma contratar jovens?
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+nao_contrat = dados[,50] %>% tolower %>% removePunctuation %>%
+  removeWords(.,stopwords('pt'))
+Encoding(nao_contrat) = 'latin1'
+
+wordcloud(nao_contrat, min.freq=2,max.words=100, random.order=F, colors=pal2)
+```
+
+### Contrata jovens para trabalhar no seu empreedimento?
+
+```{r, echo=FALSE, warning=FALSE, message=FALSE, fig.width=12, fig.height=6}
+contrata_jovens = freq(dados[,49],plot = F) %>% as.data.frame(.,stringsAsFactors=F)
+contrata_jovens = mutate(contrata_jovens,
+                         nome = rownames(contrata_jovens))
+contrata_jovens %<>% .[-nrow(contrata_jovens),]
+
+g3 = ggplot(contrata_jovens, aes(x=nome))+
+  geom_bar(aes(y=Frequência/sum(contrata_jovens$Frequência)),stat='identity', fill='#ffd42a')+
+  labs(title='Você contrata jovens? (percentual)', x='',y='')+
+  scale_y_continuous(labels=percent)+
+  coord_flip()
+
+dificuldades_contratar = freq(dados[,51],plot=F) %>% as.data.frame(.,stringsAsFactors=F)
+dificuldades_contratar = mutate(dificuldades_contratar,
+                                nome = rownames(dificuldades_contratar))
+dificuldades_contratar %<>% .[-nrow(dificuldades_contratar),]
+dificuldades_contratar$nome[dificuldades_contratar$nome == 'Não (Pular para questão 3.9)'] <- 'Não'
+
+g4 = ggplot(dificuldades_contratar, aes(x=nome))+
+  geom_bar(aes(y=Frequência/sum(dificuldades_contratar$Frequência)),stat='identity', fill='#ffd42a')+
+  labs(title='Dificuldades na contratação de jovens (percentual)', x='',y='')+
+  scale_y_continuous(labels=percent)+
+  coord_flip()
+multiplot(g3,g4,cols=2)
+```
 
 
-
-
-
-
-
+### PAREI NA VARIÁVEL 58
 
 
