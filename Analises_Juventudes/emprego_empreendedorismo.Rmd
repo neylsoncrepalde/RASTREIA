@@ -70,7 +70,7 @@ multiplot <- function(..., plotlist=NULL, file, cols=1, layout=NULL) {
   }
 }
 setwd("C:/Users/x6905399/Documents/RASTREIA/JUVENTUDES")
-dados = fread('emprego_empreendedorismo.csv', encoding="UTF-8") %>% 
+dados <- fread('emprego_empreendedorismo.csv', encoding="UTF-8") %>% 
   as.data.frame(., stringsAsFactors=F) %>% .[-2,]
 dados[,4][dados[,4] == 'Moisés Ezequiel Macedo'] = 'Moisés Ezequiel Macêdo'
 dados[,4][dados[,4] == 'FREDERICO MENDES'] = 'FREDERICO MENDES DE CARVALHO'
@@ -91,16 +91,6 @@ datatable(tabela[-nrow(tabela),c(5,1,4)])
 ### Fluxo das aplicações
 
 ```{r, echo=FALSE, warning=FALSE}
-dados[76,5] = "06/01/2017"
-dados[148,5] = '06/02/2017'
-dados[149,5] = '06/02/2017'
-dados[170,5] = '13/02/2017'
-dados[83,5] = '10/02/2017'
-dados[150,5] = '06/02/2017'
-dados[213,5] = '08/03/2017'
-dados[216,5] = '01/03/2017'
-dados[266,5] = '11/02/2017'
-
 datas = dados[,1] %>% dmy_hms %>% as_date %>%
   table %>% as.data.frame(., stringsAsFactors=F)
   
@@ -229,25 +219,65 @@ multiplot(g1, g2, cols=2)
 
 ### Dificuldades para contratar jovens
 
-```{r, echo=FALSE, warning=FALSE, message=FALSE}
+```{r, include=F}
 library(tm)
 library(wordcloud)
 pal2 = brewer.pal(8,'Dark2')
 
-dificuldades = dados[,48] %>% tolower %>% removePunctuation %>%
-  removeWords(., stopwords('pt'))
+dificuldades = dados[,48] %>% tolower %>% 
+  removePunctuation %>% removeWords(., stopwords('pt'))
+dificuldades = gsub('ç','c', dificuldades)
+dificuldades = gsub('í','i', dificuldades)
+dificuldades = gsub('á','a', dificuldades)
+dificuldades = gsub('ó','o', dificuldades)
+dificuldades = gsub('é','e', dificuldades)
 Encoding(dificuldades) = 'latin1'
 
-wordcloud(dificuldades, min.freq=2,max.words=100, random.order=F, colors=pal2)
+corpus = Corpus(VectorSource(dificuldades))
+tdm <- TermDocumentMatrix(corpus)
+tdm <- removeSparseTerms(tdm, sparse = 0.97)
+df <- as.data.frame(inspect(tdm))
+df.scale <- scale(df)
+d <- dist(df.scale, method = "euclidean")
+fit.ward2 <- hclust(d, method = "ward.D2")
 ```
 
+
+```{r, echo=FALSE, warning=FALSE, message=FALSE, fig.width=9, fig.height=6}
+par(mfrow=c(1,2))
+wordcloud(dificuldades, min.freq=2,max.words=100, random.order=F, colors=pal2)
+plot(fit.ward2, xlab = '',ylab = '',main = 'Dendograma')
+par(mfrow=c(1,1))
+```
+
+
 ### Por que não costuma contratar jovens?
-```{r, echo=FALSE, message=FALSE, warning=FALSE}
+```{r, include=F}
 nao_contrat = dados[,50] %>% tolower %>% removePunctuation %>%
   removeWords(.,stopwords('pt'))
+nao_contrat = gsub('ç','c', nao_contrat)
+nao_contrat = gsub('í','i', nao_contrat)
+nao_contrat = gsub('á','a', nao_contrat)
+nao_contrat = gsub('ó','o', nao_contrat)
+nao_contrat = gsub('é','e', nao_contrat)
 Encoding(nao_contrat) = 'latin1'
 
+corpus = Corpus(VectorSource(nao_contrat))
+tdm <- TermDocumentMatrix(corpus)
+tdm <- removeSparseTerms(tdm, sparse = 0.98)
+df <- as.data.frame(inspect(tdm))
+df.scale <- scale(df)
+d <- dist(df.scale, method = "euclidean")
+fit.ward2 <- hclust(d, method = "ward.D2")
+
+```
+
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE, fig.width=9, fig.height=6}
+par(mfrow=c(1,2))
 wordcloud(nao_contrat, min.freq=2,max.words=100, random.order=F, colors=pal2)
+plot(fit.ward2, xlab = '',ylab = '',main = 'Dendograma')
+par(mfrow=c(1,1))
 ```
 
 ### Contrata jovens para trabalhar no seu empreedimento?
@@ -297,13 +327,12 @@ ggplot(avalia_quali, aes(x=nome))+
 ### Principais dificuldades dos empreendimentos
 
 ```{r, echo=FALSE, message=FALSE, warning=FALSE}
-dificuldades_empreend = dados[,c(77:81)]
-datatable(dificuldades_empreend)
+datatable(dados[,c(77:81)])
 ```
 
 ### Potencialidades e possibilidades
 
 ```{r, echo=FALSE, message=FALSE, warning=FALSE}
-datatable(dados[,c(82:84)])
+datatable(dados[,c(82:85)])
 ```
 
