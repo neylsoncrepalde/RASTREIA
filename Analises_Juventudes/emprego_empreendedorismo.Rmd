@@ -74,6 +74,7 @@ dados <- fread('emprego_empreendedorismo.csv', encoding="UTF-8") %>%
   as.data.frame(., stringsAsFactors=F) %>% .[-2,]
 dados[,4][dados[,4] == 'Moisés Ezequiel Macedo'] = 'Moisés Ezequiel Macêdo'
 dados[,4][dados[,4] == 'FREDERICO MENDES'] = 'FREDERICO MENDES DE CARVALHO'
+dados[,3][dados[,3] == 'Mobilizador Social 5 - Belo Horizonte / Jardim Felicidade'] = 'Consultor Emprego 5 - Ribeirão das Neves e Contagem / Florença e Nova Contagem'
 ```
 
 ```{r, echo=FALSE}
