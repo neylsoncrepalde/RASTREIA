@@ -211,3 +211,31 @@ ggplot(dados, aes(`1.1 | Qual é o setor econômico do empreendimento?`))+
 ### Separar tipos de trabalho por região
 ### após limpeza e transformações para integer, multiplicar nome por número disponível
 
+
+# Gerando wordclouds com o pacote wordclou2
+library(tm)
+library(wordcloud)
+pal2 = brewer.pal(8,'Dark2')
+
+dificuldades = dados[,48] %>% tolower %>% 
+  removePunctuation %>% removeWords(., stopwords('pt'))
+dificuldades = gsub('ç','c', dificuldades)
+dificuldades = gsub('í','i', dificuldades)
+dificuldades = gsub('á','a', dificuldades)
+dificuldades = gsub('ó','o', dificuldades)
+dificuldades = gsub('é','e', dificuldades)
+Encoding(dificuldades) = 'latin1'
+
+
+corpus = Corpus(VectorSource(dificuldades))
+
+#preparando o df para wordcloud2
+tdm.word = TermDocumentMatrix(corpus) %>% as.matrix
+dim(tdm.word)
+tdm.df = data.frame(words = rownames(tdm.word),
+                    freq = apply(tdm.word,1,sum))
+View(tdm.df)
+library(wordcloud2)
+wordcloud2(tdm.df)
+
+letterCloud(tdm.df, word = "RASTREIA", wordSize = 2)
