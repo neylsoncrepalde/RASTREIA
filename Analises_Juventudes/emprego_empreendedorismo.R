@@ -219,13 +219,6 @@ pal2 = brewer.pal(8,'Dark2')
 
 dificuldades = dados[,48] %>% tolower %>% 
   removePunctuation %>% removeWords(., stopwords('pt'))
-dificuldades = gsub('ç','c', dificuldades)
-dificuldades = gsub('í','i', dificuldades)
-dificuldades = gsub('á','a', dificuldades)
-dificuldades = gsub('ó','o', dificuldades)
-dificuldades = gsub('é','e', dificuldades)
-Encoding(dificuldades) = 'latin1'
-
 
 corpus = Corpus(VectorSource(enc2native(dificuldades)))
 
