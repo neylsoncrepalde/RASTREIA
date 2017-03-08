@@ -227,7 +227,7 @@ dificuldades = gsub('é','e', dificuldades)
 Encoding(dificuldades) = 'latin1'
 
 
-corpus = Corpus(VectorSource(dificuldades))
+corpus = Corpus(VectorSource(enc2native(dificuldades)))
 
 #preparando o df para wordcloud2
 tdm.word = TermDocumentMatrix(corpus) %>% as.matrix
@@ -236,6 +236,22 @@ tdm.df = data.frame(words = rownames(tdm.word),
                     freq = apply(tdm.word,1,sum))
 View(tdm.df)
 library(wordcloud2)
-wordcloud2(tdm.df)
+wordcloud2(tdm.df, shuffle = F, rotateRatio = .8, )
 
 letterCloud(tdm.df, word = "RASTREIA", wordSize = 2)
+
+
+# Preparando para o dendograma
+tdm <- TermDocumentMatrix(corpus) %>% as.matrix
+tdm <- removeSparseTerms(tdm, sparse = 0.97)
+df <- as.data.frame(inspect(tdm))
+df.scale <- scale(df)
+d <- dist(df.scale, method = "euclidean")
+fit.ward2 <- hclust(d, method = "ward.D2")
+
+
+par(mfrow=c(1,2))
+wordcloud(enc2native(dificuldades), min.freq=2,max.words=100, random.order=F, colors=pal2)
+plot(fit.ward2, xlab = '',ylab = '',main = 'Dendograma')
+par(mfrow=c(1,1))
+
