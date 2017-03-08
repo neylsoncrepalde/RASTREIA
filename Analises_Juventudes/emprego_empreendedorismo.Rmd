@@ -74,7 +74,6 @@ dados <- fread('emprego_empreendedorismo.csv', encoding="UTF-8") %>%
   as.data.frame(., stringsAsFactors=F) %>% .[-2,]
 dados[,4][dados[,4] == 'Moisés Ezequiel Macedo'] = 'Moisés Ezequiel Macêdo'
 dados[,4][dados[,4] == 'FREDERICO MENDES'] = 'FREDERICO MENDES DE CARVALHO'
-dados[,3][dados[,3] == 'Mobilizador Social 5 - Belo Horizonte / Jardim Felicidade'] = 'Consultor Emprego 5 - Ribeirão das Neves e Contagem / Florença e Nova Contagem'
 ```
 
 ```{r, echo=FALSE}
@@ -227,14 +226,9 @@ pal2 = brewer.pal(8,'Dark2')
 
 dificuldades = dados[,48] %>% tolower %>% 
   removePunctuation %>% removeWords(., stopwords('pt'))
-dificuldades = gsub('ç','c', dificuldades)
-dificuldades = gsub('í','i', dificuldades)
-dificuldades = gsub('á','a', dificuldades)
-dificuldades = gsub('ó','o', dificuldades)
-dificuldades = gsub('é','e', dificuldades)
-Encoding(dificuldades) = 'latin1'
 
-corpus = Corpus(VectorSource(dificuldades))
+corpus = Corpus(VectorSource(enc2native(dificuldades)))
+# Preparando para o dendograma
 tdm <- TermDocumentMatrix(corpus)
 tdm <- removeSparseTerms(tdm, sparse = 0.97)
 df <- as.data.frame(inspect(tdm))
@@ -246,7 +240,7 @@ fit.ward2 <- hclust(d, method = "ward.D2")
 
 ```{r, echo=FALSE, warning=FALSE, message=FALSE, fig.width=9, fig.height=6}
 par(mfrow=c(1,2))
-wordcloud(dificuldades, min.freq=2,max.words=100, random.order=F, colors=pal2)
+wordcloud(enc2native(dificuldades), min.freq=2,max.words=100, random.order=F, colors=pal2)
 plot(fit.ward2, xlab = '',ylab = '',main = 'Dendograma')
 par(mfrow=c(1,1))
 ```
@@ -263,7 +257,7 @@ nao_contrat = gsub('ó','o', nao_contrat)
 nao_contrat = gsub('é','e', nao_contrat)
 Encoding(nao_contrat) = 'latin1'
 
-corpus = Corpus(VectorSource(nao_contrat))
+corpus = Corpus(VectorSource(enc2native(nao_contrat)))
 tdm <- TermDocumentMatrix(corpus)
 tdm <- removeSparseTerms(tdm, sparse = 0.98)
 df <- as.data.frame(inspect(tdm))
