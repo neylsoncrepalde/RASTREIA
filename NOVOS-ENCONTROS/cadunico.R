@@ -10,6 +10,8 @@ library(descr)
 library(dplyr)
 library(tidyr)
 library(magrittr)
+library(lubridate)
+library(ggplot2)
 
 alto_jequi <- fread("Alto Jequitinhonha.csv") %>% as.data.frame(.,stringsAsFactors=F)
 medio_baixo <- fread('Médio e Baixo Jequitinhonha.csv') %>% as.data.frame(.,stringsAsFactors=F)
@@ -33,4 +35,17 @@ View(dic)
 # MERGE - cod_familiar_fam [,3]
 # Faixa de renda = fx_rfpc [, 23]
 # Idade (nascimento) tá no PES. Tem que dar merge
+# 0 - 17 e 65 < x -> 00 (puxa os dois e vê)
+# Agregar variável ano da meta (planilha Jessika)
+
+# vendo a data do cadastramento
+
+datas <- CADUNICO[,4] %>% ymd %>% as_date
+datas.df <- table(datas) %>% as.data.frame(.,stringsAsFactors=F)
+limits = c(20140101,20170101)
+limits %<>% ymd %>% as_date
+ggplot(datas.df, aes(x=as_date(datas), y=Freq))+geom_line()+
+  scale_x_date(date_minor_breaks = '1 year', date_breaks = '1 year',
+               date_labels = '%Y', limits = limits)+
+  scale_y_continuous(limits = c(0, 1000))
 
