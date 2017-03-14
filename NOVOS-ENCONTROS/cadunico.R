@@ -29,14 +29,87 @@ CAD = CADUNICO[CADUNICO$fx_rfpc == 1, ] # Separando famílias com renda até R$8
 dic <- fread('E:/dicionariodomicilio.csv')
 View(dic)
 
+#linha 1510739 deu problema
+CADPES1 <- fread('pessoa.csv', nrows = 1510737) %>% as.data.frame(.,stringsAsFactors=F)
+CADPES2 <- fread('pessoa.csv', skip =  1510737) %>% as.data.frame(.,stringsAsFactors=F)
+names(CADPES2) <- names(CADPES1)
 
+CADPES <- rbind(CADPES1,CADPES2); rm(CADPES1, CADPES2)
+gc()
 
+#### Já verificamos duplicidade de CPF's #####
+#########################
+#Juntando as metas de aplicação 2017/2018
+
+metas <- read.csv2('C:/Users/Admin2/Documents/RASTREIA/selecao_publico_cadunico.csv',
+                  stringsAsFactors = F, header=F, encoding = 'UTF-8')
+names(metas) <- c('cd_ibge','nome_munic','nome_regiao','ano_meta')
+
+CADUNICO <- left_join(CADUNICO, metas) # faz o merge
+#View(CADUNICO[1:100,])
+
+#############################################
 # Variáveis importantes
 # MERGE - cod_familiar_fam [,3]
 # Faixa de renda = fx_rfpc [, 23]
+
+#Seleciona família com renda até R$85,00 per capita E que não
+#tenham recebido Bolsa Família
+selecao_acao1 <- CADUNICO[CADUNICO$fx_rfpc == 1 & CADUNICO$marc_pbf == 0,]
+
 # Idade (nascimento) tá no PES. Tem que dar merge
 # 0 - 17 e 65 < x -> 00 (puxa os dois e vê)
-# Agregar variável ano da meta (planilha Jessika)
+
+# se número de pessoas no domicílio for um critério:
+
+#View(arrange(selecao_acao1, desc(qtd_pessoas_domic_fam)))
+
+
+########################################################
+# Tentando um modelo logístico para verificar quais variáveis possuem
+# maior impacto no fato de uma família estar na faixa mais baixa
+# de renda
+
+# Valor pago em aluguel e remédios não deu certo
+# variavel escoa sanitario nao deu certo
+
+CADUNICO$pobreza <- ifelse(CADUNICO$fx_rfpc == 1, 1, 0)
+CADUNICO$cod_local_domic_fam %<>% as.factor
+levels(CADUNICO$cod_local_domic_fam) <- c('Urbanas', 'Rurais')
+CADUNICO$cod_agua_canalizada_fam %<>% as.factor
+levels(CADUNICO$cod_agua_canalizada_fam) <- c('Sim','Não')
+CADUNICO$cod_abaste_agua_domic_fam %<>% as.factor
+levels(CADUNICO$cod_abaste_agua_domic_fam) <- c('Rede geral de distribuição',
+                                                'Poço ou nascente',
+                                                'Cisterna',
+                                                'Outra forma')
+CADUNICO$cod_banheiro_domic_fam %<>% as.factor
+levels(CADUNICO$cod_banheiro_domic_fam) <- c('Sim', 'Não')
+CADUNICO$cod_iluminacao_domic_fam %<>% as.factor
+levels(CADUNICO$cod_iluminacao_domic_fam) <- c('Elétrica com medidor próprio',
+                                               'Elétrica com medidor comunitário',
+                                               'Elétrica sem medidor',
+                                               'Óleo, querosene ou gás',
+                                               'Vela',
+                                               'Outra forma')
+
+
+
+reg <- glm(pobreza ~ cod_local_domic_fam + #qtd_comodos_domic_fam +
+             qtd_comodos_dormitorio_fam + cod_agua_canalizada_fam +
+             cod_abaste_agua_domic_fam + cod_banheiro_domic_fam +
+             #factor(cod_escoa_sanitario_domic_fam) + 
+             cod_iluminacao_domic_fam,
+           data = CADUNICO, family = binomial(link='logit'))
+summary(reg)
+
+# Verificando as probabilidades
+beta2prob <- function(x){
+  return((exp(x)-1)*100)
+}
+
+beta2prob(coef(reg))
+xtable::xtable(as.data.frame(beta2prob(coef(reg))))
 
 # vendo a data do cadastramento
 
