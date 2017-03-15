@@ -151,15 +151,15 @@ View(CADUNICO[1:100,])
 
 #Seleciona família com renda até R$85,00 per capita E que não
 #tenham recebido Bolsa Família
+rurais = CADUNICO[CADUNICO$cod_local_domic_fam == 'Rurais',]
 
-selecao_acao1 <- CADUNICO[CADUNICO$fx_rfpc == 1 & CADUNICO$marc_pbf == 0,]
+selecao_acao1 <- CADUNICO[CADUNICO$fx_rfpc == 1 & CADUNICO$marc_pbf == 0 & CADUNICO$cod_local_domic_fam == 'Rurais',]
 selecao_acao1 <- arrange(selecao_acao1, desc(cod_iluminacao_domic_fam),
-                         desc(cod_banheiro_domic_fam), 
+                         desc(cod_banheiro_domic_fam),
                          desc(intercepto_aleatorio))
-selecionados_acao1 <- selecao_acao1[1:12000,]
-View(selecionados_acao1)
-#write.table(selecionados_acao1, 'selecionados_acao1.csv', 
-#            sep=',', row.names = F, fileEncoding = 'UTF-8')
+View(selecao_acao1)
+write.table(selecao_acao1, 'selecionados_acao1.csv', 
+            sep=',', row.names = F, fileEncoding = 'UTF-8')
 
 #############################################
 # Variáveis importantes
