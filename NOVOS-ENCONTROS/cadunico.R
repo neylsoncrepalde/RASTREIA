@@ -12,6 +12,10 @@ library(tidyr)
 library(magrittr)
 library(lubridate)
 library(ggplot2)
+library(lme4)
+library(merTools)
+library(lmtest)
+library(texreg)
 
 alto_jequi <- fread("Alto Jequitinhonha.csv") %>% as.data.frame(.,stringsAsFactors=F)
 medio_baixo <- fread('Médio e Baixo Jequitinhonha.csv') %>% as.data.frame(.,stringsAsFactors=F)
@@ -23,8 +27,6 @@ CADUNICO <- rbind(alto_jequi,medio_baixo,mucuri,norte,vale_rio_doce); rm(alto_je
 gc()
 
 freq(CADUNICO$fx_rfpc,plot=F)
-
-CAD = CADUNICO[CADUNICO$fx_rfpc == 1, ] # Separando famílias com renda até R$85,00
 
 dic <- fread('E:/dicionariodomicilio.csv')
 View(dic)
@@ -47,22 +49,6 @@ names(metas) <- c('cd_ibge','nome_munic','nome_regiao','ano_meta')
 
 CADUNICO <- left_join(CADUNICO, metas) # faz o merge
 #View(CADUNICO[1:100,])
-
-#############################################
-# Variáveis importantes
-# MERGE - cod_familiar_fam [,3]
-# Faixa de renda = fx_rfpc [, 23]
-
-#Seleciona família com renda até R$85,00 per capita E que não
-#tenham recebido Bolsa Família
-selecao_acao1 <- CADUNICO[CADUNICO$fx_rfpc == 1 & CADUNICO$marc_pbf == 0,]
-
-# Idade (nascimento) tá no PES. Tem que dar merge
-# 0 - 17 e 65 < x -> 00 (puxa os dois e vê)
-
-# se número de pessoas no domicílio for um critério:
-
-#View(arrange(selecao_acao1, desc(qtd_pessoas_domic_fam)))
 
 
 ########################################################
@@ -95,13 +81,37 @@ levels(CADUNICO$cod_iluminacao_domic_fam) <- c('Elétrica com medidor próprio',
 
 
 
-reg <- glm(pobreza ~ cod_local_domic_fam + #qtd_comodos_domic_fam +
+reg <- glm(pobreza ~ cod_local_domic_fam +
              qtd_comodos_dormitorio_fam + cod_agua_canalizada_fam +
              cod_abaste_agua_domic_fam + cod_banheiro_domic_fam +
-             #factor(cod_escoa_sanitario_domic_fam) + 
              cod_iluminacao_domic_fam,
            data = CADUNICO, family = binomial(link='logit'))
 summary(reg)
+
+# Tentando um modelo logístico hierárquico
+reg_multi <- glmer(pobreza ~ cod_local_domic_fam + (1 | nome_munic) +
+                            qtd_comodos_dormitorio_fam + cod_agua_canalizada_fam +
+                            cod_abaste_agua_domic_fam + cod_banheiro_domic_fam +
+                            cod_iluminacao_domic_fam,
+                          data = CADUNICO, family = binomial(link='logit'))
+summary(reg_multi)
+ICC = var(reg_multi@u) / (var(reg_multi@u)+var(residuals(reg_multi)))
+lrtest(reg, reg_multi)
+plotREsim(REsim(reg_multi))
+
+#Gerando a tabela com os resultados das regressoes
+texreg(list(reg, reg_multi), 
+       custom.model.names = c('Logístico', 'Logístico Multinível'),
+       center = F, caption.above = T, 
+       caption = 'Modelos estatísticos')
+
+
+reg_multi_effale <- glmer(pobreza ~ cod_local_domic_fam +
+                     qtd_comodos_dormitorio_fam + cod_agua_canalizada_fam +
+                     cod_abaste_agua_domic_fam + (cod_banheiro_domic_fam | nome_munic) +
+                     cod_iluminacao_domic_fam,
+                   data = CADUNICO, family = binomial(link='logit'))
+summary(reg_multi_effale)
 
 # Verificando as probabilidades
 beta2prob <- function(x){
@@ -110,7 +120,9 @@ beta2prob <- function(x){
 
 beta2prob(coef(reg))
 xtable::xtable(as.data.frame(beta2prob(coef(reg))))
+beta2prob(reg_multi@beta)
 
+################################
 # vendo a data do cadastramento
 
 datas <- CADUNICO[,4] %>% ymd %>% as_date
@@ -121,4 +133,45 @@ ggplot(datas.df, aes(x=as_date(datas), y=Freq))+geom_line()+
   scale_x_date(date_minor_breaks = '1 year', date_breaks = '1 year',
                date_labels = '%Y', limits = limits)+
   scale_y_continuous(limits = c(0, 1000))
+################################
+
+
+#### Rankeando os municipios
+# Juntando o resultado do intercepto aleatorio do modelo multinivel
+resultados = coef(reg_multi)
+ranking_munic = data.frame(rownames(resultados$nome_munic),resultados$nome_munic[,1])
+names(ranking_munic) <- c('nome_munic', 'intercepto_aleatorio')
+View(ranking_munic)
+CADUNICO <- left_join(CADUNICO, ranking_munic)
+View(CADUNICO[1:100,])
+
+
+#####################################
+# Fazendo a seleção
+
+#Seleciona família com renda até R$85,00 per capita E que não
+#tenham recebido Bolsa Família
+
+selecao_acao1 <- CADUNICO[CADUNICO$fx_rfpc == 1 & CADUNICO$marc_pbf == 0,]
+selecao_acao1 <- arrange(selecao_acao1, desc(cod_iluminacao_domic_fam),
+                         desc(cod_banheiro_domic_fam), 
+                         desc(intercepto_aleatorio))
+selecionados_acao1 <- selecao_acao1[1:12000,]
+View(selecionados_acao1)
+#write.table(selecionados_acao1, 'selecionados_acao1.csv', 
+#            sep=',', row.names = F, fileEncoding = 'UTF-8')
+
+#############################################
+# Variáveis importantes
+# MERGE - cod_familiar_fam [,3]
+# Faixa de renda = fx_rfpc [, 23]
+
+
+# Idade (nascimento) tá no PES. Tem que dar merge
+# 0 - 17 e 65 < x -> 00 (puxa os dois e vê)
+
+
+
+
+
 
