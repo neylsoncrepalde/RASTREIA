@@ -231,11 +231,21 @@ CADPES <-  fread('CADPES.csv') %>% as.data.frame(.,stringsAsFactors=F)
 rm(reg)
 gc()
 
+selecao_acao2 = CADUNICO[CADUNICO$fx_rfpc != 1,]
 
+selecao_acao2$ind_parc_mds_fam[selecao_acao2$ind_parc_mds_fam == 0] = 999
 
+# Filtrando por se tem agua canalizada, depois cat de renda, 
+# depois comunidades tradicionais
+ 
+selecao_acao2 = arrange(selecao_acao2, cod_agua_canalizada_fam,
+                        fx_rfpc, cod_familia_indigena_fam,
+                        ind_familia_quilombola_fam,
+                        ind_parc_mds_fam)
 
+View(selecao_acao2)
+amostra = selecao_acao2[1:83000,]
+freq(amostra$ano_meta,plot=F)
+View(amostra)
 
-
-
-
-
+#write.table(amostra, 'selecionados_acao2.csv', sep=',', row.names = F)
