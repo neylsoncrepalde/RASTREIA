@@ -244,8 +244,9 @@ selecao_acao2 = arrange(selecao_acao2, cod_agua_canalizada_fam,
                         ind_parc_mds_fam)
 
 View(selecao_acao2)
-amostra = selecao_acao2[1:83000,]
+amostra = selecao_acao2[1:90000,]
 freq(amostra$ano_meta,plot=F)
 View(amostra)
 
-#write.table(amostra, 'selecionados_acao2.csv', sep=',', row.names = F)
+#write.table(amostra, 'selecionados_acao2.csv', sep=',', row.names = F, 
+#            fileEncoding = 'UTF-8')
