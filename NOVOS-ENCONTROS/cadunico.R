@@ -29,7 +29,9 @@ gc()
 freq(CADUNICO$fx_rfpc,plot=F)
 
 dic <- fread('E:/dicionariodomicilio.csv')
+dicpes <- fread('E:/dicionariopessoa.csv')
 View(dic)
+View(dicpes)
 
 #linha 1510739 deu problema
 CADPES1 <- fread('pessoa.csv', nrows = 1510737) %>% as.data.frame(.,stringsAsFactors=F)
@@ -106,12 +108,12 @@ texreg(list(reg, reg_multi),
        caption = 'Modelos estatísticos')
 
 
-reg_multi_effale <- glmer(pobreza ~ cod_local_domic_fam +
-                     qtd_comodos_dormitorio_fam + cod_agua_canalizada_fam +
-                     cod_abaste_agua_domic_fam + (cod_banheiro_domic_fam | nome_munic) +
-                     cod_iluminacao_domic_fam,
-                   data = CADUNICO, family = binomial(link='logit'))
-summary(reg_multi_effale)
+#reg_multi_effale <- glmer(pobreza ~ cod_local_domic_fam +
+#                     qtd_comodos_dormitorio_fam + cod_agua_canalizada_fam +
+#                     cod_abaste_agua_domic_fam + (cod_banheiro_domic_fam | nome_munic) +
+#                     cod_iluminacao_domic_fam,
+#                   data = CADUNICO, family = binomial(link='logit'))
+#summary(reg_multi_effale)
 
 # Verificando as probabilidades
 beta2prob <- function(x){
@@ -169,6 +171,68 @@ write.table(selecao_acao1, 'selecionados_acao1.csv',
 
 # Idade (nascimento) tá no PES. Tem que dar merge
 # 0 - 17 e 65 < x -> 00 (puxa os dois e vê)
+
+##############################################
+##### FEITO
+#Filtrando os municípios do banco pessoas
+#ibge_munics = CADUNICO$cd_ibge %>% unique
+#CADPES_ibge = CADPES$cd_ibge
+#linhas = c()
+
+#for (i in 1:nrow(CADPES)){
+#  for (munic in ibge_munics){
+#    if (i == munic){
+#      linhas[i] = i
+#    } else{
+#      linhas[i] = NA
+#   }
+#  }
+#}
+
+#selec_index = function(num, x=CADPES_ibge){
+#  retorna_index = function(a, b){
+#    if (a == x[b]){
+#      return(b)
+#    }
+#  }
+#  lista_indexes = sapply(1:length(x), retorna_index, a=num)
+#  lista_indexes = unlist(lista_indexes)
+#  return(lista_indexes)
+#}
+
+#Teste
+#selec_index(2, c(1,2,5,4,6,2,7,6,2,19,2))
+#sapply(1:5, selec_index, x = x) %>% unlist
+
+# Pra Valer!!!
+#library(parallel)
+#no_cores = detectCores()
+#cl = makeCluster(no_cores)
+#clusterExport(cl, c('ibge_munics', 'CADPES_ibge', 'selec_index'))
+
+#linhas = parSapply(cl, ibge_munics, selec_index) %>% unlist
+
+#stopCluster(cl)
+
+
+#CADPES_selecao = CADPES[linhas,]
+
+#write.csv2(CADPES_selecao, 'CADPES.csv', row.names = F)
+
+CADPES <-  fread('CADPES.csv') %>% as.data.frame(.,stringsAsFactors=F)
+
+################################################
+################################################
+################################################
+################################################
+
+###############################################
+# Ação 2 - Entrega de KIT Alimento e trabalho
+rm(reg)
+gc()
+
+
+
 
 
 
