@@ -2,7 +2,7 @@
 title: "Perfil Socioprofissional dos jovens"
 output:
   html_notebook: default
-date: "29 de março de 2017"
+date: "30 de março de 2017"
 ---
 
 ![](C:/Users/x6905399/Documents/RASTREIA/RastreiaLogo.png)
@@ -69,15 +69,62 @@ multiplot <- function(..., plotlist=NULL, file, cols=1, layout=NULL) {
     }
   }
 }
+
+rm_accent <- function(str,pattern="all") {
+  # Rotinas e funções úteis V 1.0
+  # rm.accent - REMOVE ACENTOS DE PALAVRAS
+  # Função que tira todos os acentos e pontuações de um vetor de strings.
+  # Parâmetros:
+  # str - vetor de strings que terão seus acentos retirados.
+  # patterns - vetor de strings com um ou mais elementos indicando quais acentos deverão ser retirados.
+  #            Para indicar quais acentos deverão ser retirados, um vetor com os símbolos deverão ser passados.
+  #            Exemplo: pattern = c("´", "^") retirará os acentos agudos e circunflexos apenas.
+  #            Outras palavras aceitas: "all" (retira todos os acentos, que são "´", "`", "^", "~", "¨", "ç")
+  if(!is.character(str))
+    str <- as.character(str)
+
+  pattern <- unique(pattern)
+
+  if(any(pattern=="Ç"))
+    pattern[pattern=="Ç"] <- "ç"
+
+  symbols <- c(
+    acute = "áéíóúÁÉÍÓÚýÝ",
+    grave = "àèìòùÀÈÌÒÙ",
+    circunflex = "âêîôûÂÊÎÔÛ",
+    tilde = "ãõÃÕñÑ",
+    umlaut = "äëïöüÄËÏÖÜÿ",
+    cedil = "çÇ"
+  )
+
+  nudeSymbols <- c(
+    acute = "aeiouAEIOUyY",
+    grave = "aeiouAEIOU",
+    circunflex = "aeiouAEIOU",
+    tilde = "aoAOnN",
+    umlaut = "aeiouAEIOUy",
+    cedil = "cC"
+  )
+
+  accentTypes <- c("´","`","^","~","¨","ç")
+
+  if(any(c("all","al","a","todos","t","to","tod","todo")%in%pattern)) # opcao retirar todos
+    return(chartr(paste(symbols, collapse=""), paste(nudeSymbols, collapse=""), str))
+
+  for(i in which(accentTypes%in%pattern))
+    str <- chartr(symbols[i],nudeSymbols[i], str)
+
+  return(str)
+}
+
 setwd("C:/Users/x6905399/Documents/RASTREIA/JUVENTUDES")
 dados <- fread('perfil_jovens.csv', encoding="UTF-8") %>% 
-  as.data.frame(., stringsAsFactors=F) %>% .[-2,]
+  as.data.frame(., stringsAsFactors=F) %>% .[-1,]
 dados[,4][dados[,4] == 'GISLENE MARIA DAMASCENO.'] = 'GISLENE MARIA DAMASCENO'
-dados[,4][dados[,4] == 'Marcos Donizetti Da Silva'] = 'MARCOS DONIZETTI DA SILVA'
-dados %<>% .[-1,]
+dados[,4] %<>% toupper
 ```
 
-```{r, echo=FALSE}
+```{r}
 tabela = freq(dados[,4], plot=F) %>% as.data.frame(., stringsAsFactors=F)
 tabela$pertotal = (tabela[,1] * 100) / 50
 tabela = mutate(tabela,
@@ -86,20 +133,20 @@ tabela = mutate(tabela,
 names(tabela) = c('Frequência','Percentual','Percentual do total',
                   'Percentual do total (50)', 'Nome do Consultor')
 
-datatable(tabela[-nrow(tabela),c(5,1,4)])
+datatable(tabela[-nrow(tabela),c(5,1)])
 ```
 
 ### Fluxo das aplicações
 
-```{r, echo=FALSE, warning=FALSE}
+```{r, warning=FALSE, fig.width=9, fig.height=6}
 datas = dados[,1] %>% dmy_hms %>% as_date %>%
   table %>% as.data.frame(., stringsAsFactors=F)
   
-limits = c(20170315,20170330) %>% ymd %>% as_date
-names(datas) = c('Data','Questionários')
+limits = c("2017-03-15", as.character(Sys.Date())) %>% ymd %>% as_date
+names(datas) = c('Data','Questionarios')
 datas$Data %<>% as_date
 
-g = ggplot(datas, aes(x=Data, y=Questionários))+geom_line(lwd=1)+
+g = ggplot(datas, aes(x=Data, y=Questionarios))+geom_line(lwd=1)+
   scale_x_date(date_minor_breaks = '1 week', date_breaks = '1 week',
                date_labels = '%d/%m', limits = limits)+
   labs(x='Data de lançamento',y='Número de questionários')
@@ -116,13 +163,57 @@ dados = dados %>% separate(servico, c('parte1','regiao'), ' / ')
 
 dados$regiao %>% freq(., plot=F)
 dados2 = dados %>% separate(regiao, c('r1','r2','r3'), ' e ')
-regioes_desag = rbind(dados2$r1, dados2$r2, dados2$r3)
+regioes_desag = c(dados2$r1, dados2$r2, dados2$r3)
 locais = freq(regioes_desag, plot=F) %>% as.data.frame(., stringsAsFactors=F) %>%
   .[-c(nrow(.), nrow(.)-1),]
 ```
 
-```{r, echo=FALSE, fig.height=6, fig.width=9}
-locais
+```{r, fig.height=6, fig.width=9}
+datatable(round(locais, digits = 2))
 ```
+
+## Idade dos jovens entrevistados
+
+```{r, fig.width=9, fig.height=6}
+names(dados)[14] <- "idade"
+names(dados)[16] <- "genero"
+names(dados)[15] <- "cor"
+names(dados)[10] <- "bairro"
+g1 <- ggplot(dados, aes(x=idade))+geom_histogram(bins=15, col="grey", fill='#ffd42a')+labs(x="Idade", y="", title="Histograma")
+g2 <- ggplot(dados, aes(x=1,y=idade))+geom_boxplot(fill='#ffd42a')+labs(y="Idade", x="", title="Boxplot")
+multiplot(g1,g2, cols = 2)
+```
+
+## Gênero
+
+```{r}
+datatable(freq(dados$genero, plot=F))
+```
+
+## Bairro
+
+```{r, message=FALSE, warning=FALSE}
+library(tm)
+dados$bairro <- dados$bairro %>% toupper %>% removePunctuation %>% rm_accent
+dados$bairro[dados$bairro == "V LEONINA"] <- "VILA LEONINA"
+datatable(freq(dados$bairro, plot=F))
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
