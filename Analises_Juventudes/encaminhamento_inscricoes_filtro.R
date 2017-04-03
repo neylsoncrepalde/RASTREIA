@@ -22,7 +22,7 @@ arquivos <- list.files(pattern = '.csv')
 dados <- read.csv("encaminhamento_organizacao_eventos.csv", stringsAsFactors = F, encoding = 'UTF-8')
 names(dados) <- c('data_hora','municipio','regiao','instituicao','nome','telefone',
                   'email','posicao','nome1','nascimento','bairro','telefone1','email1',
-                  'pub_prioritario','desc_risco_social','previsao_entrada','cursos')
+                  'pub_prioritario','desc_risco_social','previsao_entrada','cursos_2opcao')
 names(dados)
 ######################
 # Limpando a posicao
