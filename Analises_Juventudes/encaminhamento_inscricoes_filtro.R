@@ -1,7 +1,7 @@
 ####################################
 # Encaminhamento de Inscrições
 # Oficina: CONFEITARIA
-# Script: Neylson Crepalde
+# Script: Neylson Crepalde e Marcus Oliveira
 # ---RASTREIA---
 ####################################
 
@@ -12,6 +12,7 @@ library(lubridate)
 library(descr)
 
 setwd("C:/Users/x6905399/Documents/RASTREIA/JUVENTUDES/Oficinas")
+arquivos <- list.files(pattern = '.csv')
 
 # Agora falta programar o loop
 # Para todos os arquivos na pasta tal, execute essas funções
@@ -46,7 +47,12 @@ nomes_selecionados <- reorder$nome1
 nomes_selecionados %<>% unique
 nomes_2opcao <- reorder[,c(9,17)]
 
-#Descomentar para gerar os csv's
 #write.csv(reorder, "oficinas_ordem_prioridade.csv", row.names = F, fileEncoding = "UTF-8")
 #write.csv(nomes_selecionados, "nomes_selecionados.csv", row.names = F, fileEncoding = "UTF-8")
 #write.csv(nomes_2opcao, "nomes_segunda_opcao.csv", row.names = F, fileEncoding = "UTF-8")
+
+
+
+
+
+
