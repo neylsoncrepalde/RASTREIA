@@ -1,8 +1,8 @@
 ---
-title: "Perfil Socioprofissional dos Jovens"
+title: "Perfil Socioprofissional dos jovens"
 output:
   html_notebook: default
-date: "07 de abril de 2017"
+date: "05 de abril de 2017"
 ---
 
 ![](C:/Users/x6905399/Documents/RASTREIA/RastreiaLogo.png)
@@ -187,7 +187,7 @@ g2
 ## Gênero
 
 ```{r}
-tabela = table(agrupado$servico,agrupado$genero)
+tabela = table(dados2$servico,dados2$genero)
 tabela = tabela[,-1]
 knitr::kable(tabela)
 ```
@@ -196,9 +196,9 @@ knitr::kable(tabela)
 
 ```{r, message=FALSE, warning=FALSE}
 library(tm)
-dados$bairro <- dados$bairro %>% toupper %>% removePunctuation %>% rm_accent
-dados$bairro[dados$bairro == "V LEONINA"] <- "VILA LEONINA"
-datatable(freq(dados$bairro, plot=F))
+dados2$bairro <- dados2$bairro %>% toupper %>% removePunctuation %>% rm_accent
+dados2$bairro[dados2$bairro == "V LEONINA"] <- "VILA LEONINA"
+datatable(freq(dados2$bairro, plot=F))
 ```
 
 
