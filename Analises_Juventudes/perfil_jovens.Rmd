@@ -2,7 +2,7 @@
 title: "Perfil Socioprofissional dos jovens"
 output:
   html_notebook: default
-date: "30 de março de 2017"
+date: "05 de abril de 2017"
 ---
 
 ![](C:/Users/x6905399/Documents/RASTREIA/RastreiaLogo.png)
@@ -175,22 +175,24 @@ datatable(round(locais, digits = 2))
 ## Idade dos jovens entrevistados
 
 ```{r, fig.width=9, fig.height=6}
-names(dados)[14] <- "idade"
-names(dados)[16] <- "genero"
-names(dados)[15] <- "cor"
-names(dados)[10] <- "bairro"
-g1 <- ggplot(dados, aes(x=idade))+geom_histogram(bins=15, col="grey", fill='#ffd42a')+labs(x="Idade", y="", title="Histograma")
-g2 <- ggplot(dados, aes(x=1,y=idade))+geom_boxplot(fill='#ffd42a')+labs(y="Idade", x="", title="Boxplot")
-multiplot(g1,g2, cols = 2)
+names(dados2)[3] <- "servico"
+names(dados2)[14] <- "idade"
+names(dados2)[16] <- "genero"
+names(dados2)[15] <- "cor"
+names(dados2)[10] <- "bairro"
+g2 <- ggplot(dados2, aes(x=1,y=idade))+geom_boxplot(fill='#ffd42a')+labs(y="Idade", x="", title="Boxplots")+facet_wrap(~parte1)
+g2
 ```
 
 ## Gênero
 
 ```{r}
-datatable(freq(dados$genero, plot=F))
+tabela = table(agrupado$servico,agrupado$genero)
+tabela = tabela[,-1]
+knitr::kable(tabela)
 ```
 
-## Bairro
+## Bairros
 
 ```{r, message=FALSE, warning=FALSE}
 library(tm)
