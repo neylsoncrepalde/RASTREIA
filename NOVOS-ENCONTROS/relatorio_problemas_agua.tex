@@ -12,26 +12,39 @@
 \usepackage{longtable}
 \usepackage{amsmath}
 \usepackage{verbatim}
+\usepackage{TikZ}
 \pagestyle{plain}
 
 \titulo{Nota técnica - Análise dos problemas territoriais do acesso à água}
-\autor{RASTREIA}
 
 
 \begin{document}
+		
+	\thispagestyle{empty}
+	\begin{tikzpicture}[remember picture, overlay]
+	\node[inner sep=0pt] at (current page.center) {%
+		\includegraphics[width=\paperwidth,height=\paperheight]{Capa_rastreia.png}%
+	};
+	\end{tikzpicture}
+	\cleardoublepage{}
+	
+	
+	\newpage
+	
 	\pretextual
 	\maketitle
 	
 	\textual
 	
-	
 	\section{Introdução}
 	
-	A partir de dados fornecidos pelas instituições \ldots
+	Como estratégia de ação, o programa NOVOS ENCONTROS se propõe a analisar ações de acesso a água realizadas pelos diversos órgãos do Estado ou em parceria com o mesmo objetivando intervenções que aumentem significativamente a eficiência dos processos e otimizem os resultados obtidos. A partir de dados fornecidos pelos órgãos, o RASTREIA (Diretoria de Monitoramento e Avaliação de Programas Especiais) realizou uma análise sobre os principais problemas apontados buscando nortear as decisões do NOVOS ENCONTROS.
 	
 	
 	
 	\section{Poços fora de operação por município}
+	
+	Preliminarmente, investigamos a quantidade de poços que não estão em funcionamento e sua distribuição nas cidades mineiras. Essa distribuição encontra-se na tabela \ref{poc-operacao}.
 	
 	% latex table generated in R 3.3.3 by xtable 1.8-2 package
 	% Wed Apr 12 10:32:00 2017
@@ -118,6 +131,8 @@
 		\label{poc-operacao}
 	\end{longtable}
 	\end{scriptsize}
+	
+	Os principais motivos pelos quais os poços não estão em funcionamento são apresentados na tabela \ref{mot-nao-operacao}. É possível identificar que a maior causa do não funcionamento é a \textbf{ausência de energia elétrica} seguido imediatamente pela \textbf{ausência de análise da água do local}. Nas tabelas \ref{motivo1}, \ref{motivo2}. \ref{motivo3} e \ref{motivo4}, apresentamos a distribuição de cada um dos principais motivos encontrados por município.
 	
 	
 	% Motivos de não operação
@@ -325,11 +340,12 @@
 
 	
 	\section{Problemas fundiários}
-	Apenas 8\% do universo investigado apresenta dados de problemas fundiários. A grande quantidade de não respostas (\textit{missing values}) torna inviável a análise desta variável através dos dados disponibilizados.
+	Apenas 8\% do universo investigado apresenta dados sobre problemas fundiários. A grande quantidade de não respostas (\textit{missing values}) torna inviável a análise desta variável através dos dados disponibilizados.
 	
 	
 	\section{Licença ambiental}
-	Verificamos primeiro a distribuição de frequências das categorias da variável - ver tabela \ref{outorga}.
+	
+	Com relação ao licenciamento ambiental, verificamos primeiro a distribuição de frequências das categorias da variável - ver tabela \ref{outorga}. É possível verificar que aprox. 77\% das ações cadastradas válidas para análise (desconsiderando as ``não respostas'') não possuem outorga. Na tabela \ref{semoutorga} apresentamos a distribuição das ações sem outorga por município.
 	
 	\begin{scriptsize}
 		% latex table generated in R 3.3.3 by xtable 1.8-2 package
@@ -438,9 +454,87 @@
 	\end{scriptsize}	
 	
 	
+	\section{Principais propostas}
+	
+	Apresentamos na tabela \ref{propostas} as principais propostas de resolução elencadas pelos órgãos. As propostas foram agrupadas de forma automatizada visando uma maior aglutinação dos dados, o que permite uma melhor análise qualitativa.
+	
+	A princípio é possível identificar a \textbf{instalação de clorador de pastilhas} como uma ação considerada prioritária para os órgãos. A \textbf{regularização ambiental} bem como a \textbf{energização do local} aparecem ainda como soluções mais citadas.
+	
+	\begin{scriptsize}
+		% latex table generated in R 3.3.3 by xtable 1.8-2 package
+		% Wed Apr 12 14:26:18 2017
+		\begin{longtable}{rrp{11cm}}
+			\caption{Principais propostas apresentadas pelos Órgãos} \\ 
+			\hline
+			Frequência & Percentual & Proposta \\ 
+			\hline
+			229.00 & 15.27 & Instalar clorador de pastilhas \\ 
+			229.00 & 15.27 & realizar regularização ambiental-Outorga \\ 
+			185.00 & 12.33 & realizar energização dos poços.Concluir a fase de análise de do índicativo de qualidade de água. \\ 
+			150.00 & 10.00 & Instalar clorador de pastilha \\ 
+			62.00 & 4.13 & Levantamento em campo pela Emater para diagnosticar as possíveis soluções \\ 
+			60.00 & 4.00 & Realizar a regularização ambiental e realizar a energização dos poços \\ 
+			48.00 & 3.20 & Necessidade de apresentar análise de água \\ 
+			48.00 & 3.20 & verificando se há necessidade de instalar o clorador de pastilhas \\ 
+			46.00 & 3.07 & concluir a fase de análise de do índicativo de qualidade de água. \\ 
+			46.00 & 3.07 & Realizar a regularização ambiental e realizar a energização dos poços que ainda não foram energizados \\ 
+			25.00 & 1.67 & Apoio da Emater na seleção das comuniaddes a serem selecionadas \\ 
+			24.00 & 1.60 & realizar energização dos poços.Concluir a fase de análise de do índicativo de qualidade de água.Concluir a fase de análise de do índicativo de qualidade de água.Concluir a fase de análise de do índicativo de qualidade de água. \\ 
+			23.00 & 1.53 & concluir análise de do índicativo de qualidade de água. \\ 
+			23.00 & 1.53 & tratamento e corrigir ligações prediais \\ 
+			23.00 & 1.53 & urbanização \\ 
+			22.00 & 1.47 & Realizar a regularização ambiental -  outorga -  e realizar a energização dos poços. \\ 
+			20.00 & 1.33 & realizar energização dos poços. \\ 
+			19.00 & 1.27 & Concluir a fase de análise do índicativo de qualidade de água \\ 
+			18.00 & 1.20 &  Instalar clorador de pastilha \\ 
+			18.00 & 1.20 & Realizar a regularização ambiental e realizar a energização dos poços. \\ 
+			16.00 & 1.07 & Concluir a fase de análise de do índicativo de qualidade de água \\ 
+			16.00 & 1.07 & regularização ambiental e energizar os poços. \\ 
+			16.00 & 1.07 & regularização ambiental e energizar os poços.Concluir a fase de análise de do índicativo de qualidade de água. \\ 
+			10.00 & 0.67 & E Verivifar junto a empresa executora a vazão explorada \\ 
+			10.00 & 0.67 & Os poços energizados deve verificar o indicie de qualidade de água. \\ 
+			10.00 & 0.67 & regularização ambiental e energizar os poços das comunidades que ainda estão pendentes.Concluir a fase de análise de do índicativo de qualidade de água. \\ 
+			8.00 & 0.53 & Apenas a comunidade Dos Gonçalves possuí vazão \\ 
+			8.00 & 0.53 & Apenas o valor do clorador de pastilha para as demais. \\ 
+			8.00 & 0.53 & as demais a empresa executora está encaminhando \\ 
+			6.00 & 0.40 &  Efetuar os pagamento dos restos a pagar da empresa executora \\ 
+			6.00 & 0.40 & (Vistoriar comunidade Mandassainha) \\ 
+			6.00 & 0.40 & e realizar a energização dos poços. \\ 
+			6.00 & 0.40 & E Verivifar junto a empresa executora a vazão explorada. \\ 
+			6.00 & 0.40 & finalizar a análise do indicativo de qualidade de água de cada município \\ 
+			6.00 & 0.40 & Necessário realizar análise de potabilidade de água para identificar se é passivel de outorga ou dispensa de Outorga \\ 
+			6.00 & 0.40 & Realizar a regularização ambiental -  outorga -  e realizar a energização dos dois poços que ainda não foram energizados. \\ 
+			6.00 & 0.40 & Realizar a regularização ambiental e realizar a energização dos poços que não foram regularizados \\ 
+			6.00 & 0.40 & regularização ambiental e energizar os poços \\ 
+			5.00 & 0.33 & Retirar tubulação e reservatório doados \\ 
+			4.00 & 0.27 & Finalizar montagem eletrica do booster e corrigir ligações \\ 
+			4.00 & 0.27 & Realizar a regularização ambiental. \\ 
+			2.00 & 0.13 & Nã se aplica \\ 
+			2.00 & 0.13 & Refazer o booster e corrigir ligações \\ 
+			1.00 & 0.07 & Execução booster \\ 
+			1.00 & 0.07 & Finalizar montagem eletrica do booster \\ 
+			1.00 & 0.07 & Finalizar montagem eletrica do booster de corrego Fundo \\ 
+			1.00 & 0.07 & Finalizar montagem eletrica do booster de Volta do Morro \\ 
+			1.00 & 0.07 & mas a execução é do muncípio \\ 
+			1.00 & 0.07 & Não há informação da execução \\ 
+			1.00 & 0.07 & o Estado repassa o recurso \\ 
+			1.00 & 0.07 & urbanização e reforma reservação \\ 
+			1.00 & 0.07 & Urbanização e tratamento com bomba dosadora e filtro removedor de ferr/manganes \\ 
+			\hline
+			\hline
+			\label{propostas}
+		\end{longtable}
+	\end{scriptsize}
 	
 	
+	\newpage
 	
-	
+	\thispagestyle{empty}
+	\begin{tikzpicture}[remember picture, overlay]
+	\node[inner sep=0pt] at (current page.center) {%
+		\includegraphics[width=\paperwidth,height=\paperheight]{Contracapa_rastreia.png}%
+	};
+	\end{tikzpicture}
+	\cleardoublepage{}
 	
 \end{document}
