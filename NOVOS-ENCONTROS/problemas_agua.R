@@ -200,13 +200,23 @@ print(xsemoutorga, include.rownames = F, caption.placement = 'top',
 View(cbind(dados$`Solução proposta`, dados$Órgão.Entidade))
 freq(dados$`Solução proposta`,plot=F)
 
+propostas <- cbind(dados$Município , dados$`Solução proposta`, dados$Órgão.Entidade) %>% 
+  as.data.frame(., stringsAsFactors=F)
+names(propostas) = c("Município", "Proposta","Órgão")
+propostas = propostas %>% unnest(strsplit(Proposta, "\\. "))
+names(propostas)[4] = "dividido1"
+freq(propostas$dividido1, plot=F)
+propostas = propostas %>% unnest(strsplit(dividido1, ", "))
+names(propostas)[5] = "dividido2"
+tab_propostas = freq(propostas$dividido2, plot=F) 
+tab_propostas = tab_propostas %>% as.data.frame(.,stringsAsFactors=F) %>% 
+  mutate(Município = rownames(tab_propostas)) %>% arrange(desc(Frequência)) %>% .[-1,]
 
-
-
-
-
-
-
+xtab_propostas = xtable(tab_propostas, caption = "Principais propostas apresentadas pelos Órgãos",
+                        label='propostas', 
+                        digits = 2)
+print(xtab_propostas, include.rownames = F, caption.placement = 'top', 
+      tabular.environment = "longtable", floating = F)
 
 
 
