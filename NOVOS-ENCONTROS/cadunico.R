@@ -1,8 +1,12 @@
 # CADUNICO
 # Neylson
+# Em andamento...
 ##############
 
-setwd("E:/Bases/CADUNICO")
+#### Instalar pacotes manualmente com tar.gz
+# install.packages("~/Downloads/nome-do-pacote", repos=NULL)
+
+setwd("~/Documentos/CADUNICO")
 
 library(data.table)
 library(bit64)
@@ -17,40 +21,62 @@ library(merTools)
 library(lmtest)
 library(texreg)
 
-alto_jequi <- fread("Alto Jequitinhonha.csv") %>% as.data.frame(.,stringsAsFactors=F)
-medio_baixo <- fread('Médio e Baixo Jequitinhonha.csv') %>% as.data.frame(.,stringsAsFactors=F)
-mucuri <- fread('Mucuri.csv') %>% as.data.frame(.,stringsAsFactors=F)
-norte <- fread('Norte.csv') %>% as.data.frame(.,stringsAsFactors=F)
-vale_rio_doce <- fread('Vale do Rio Doce.csv') %>% as.data.frame(.,stringsAsFactors=F)
+#alto_jequi <- fread("Alto Jequitinhonha.csv") %>% as.data.frame(.,stringsAsFactors=F)
+#medio_baixo <- fread('Médio e Baixo Jequitinhonha.csv') %>% as.data.frame(.,stringsAsFactors=F)
+#mucuri <- fread('Mucuri.csv') %>% as.data.frame(.,stringsAsFactors=F)
+#norte <- fread('Norte.csv') %>% as.data.frame(.,stringsAsFactors=F)
+#vale_rio_doce <- fread('Vale do Rio Doce.csv') %>% as.data.frame(.,stringsAsFactors=F)
 
-CADUNICO <- rbind(alto_jequi,medio_baixo,mucuri,norte,vale_rio_doce); rm(alto_jequi,medio_baixo,mucuri,norte,vale_rio_doce)
+#CADUNICO <- rbind(alto_jequi,medio_baixo,mucuri,norte,vale_rio_doce); rm(alto_jequi,medio_baixo,mucuri,norte,vale_rio_doce)
+
+###############################################################
+###############################################################
+###############################################################
+###############################################################
+#Lendo o CADUNICO e separando os municípios selecionados
+# Aguardando rolar a instalação de pacotes........
+CADUNICO <- fread('CADDOM.csv')
+
 gc()
 
 freq(CADUNICO$fx_rfpc,plot=F)
 
-dic <- fread('E:/dicionariodomicilio.csv')
-dicpes <- fread('E:/dicionariopessoa.csv')
+dic <- fread('dicionariodomicilio.csv')
+dicpes <- fread('dicionariopessoa.csv')
 View(dic)
 View(dicpes)
 
 #linha 1510739 deu problema
-CADPES1 <- fread('pessoa.csv', nrows = 1510737) %>% as.data.frame(.,stringsAsFactors=F)
-CADPES2 <- fread('pessoa.csv', skip =  1510737) %>% as.data.frame(.,stringsAsFactors=F)
-names(CADPES2) <- names(CADPES1)
+#CADPES1 <- fread('pessoa.csv', nrows = 1510737) %>% as.data.frame(.,stringsAsFactors=F)
+#CADPES2 <- fread('pessoa.csv', skip =  1510737) %>% as.data.frame(.,stringsAsFactors=F)
+#names(CADPES2) <- names(CADPES1)
 
-CADPES <- rbind(CADPES1,CADPES2); rm(CADPES1, CADPES2)
+#CADPES <- rbind(CADPES1,CADPES2); rm(CADPES1, CADPES2)
+CADPES <- fread('CADPES.csv')
 gc()
 
 #### Já verificamos duplicidade de CPF's #####
 #########################
 #Juntando as metas de aplicação 2017/2018
 
-metas <- read.csv2('C:/Users/Admin2/Documents/RASTREIA/selecao_publico_cadunico.csv',
-                  stringsAsFactors = F, header=F, encoding = 'UTF-8')
+metas <- read.csv2('selecao_publico_cadunico.csv',
+                   stringsAsFactors = F, header=F, encoding = 'UTF-8')
 names(metas) <- c('cd_ibge','nome_munic','nome_regiao','ano_meta')
 
 CADUNICO <- left_join(CADUNICO, metas) # faz o merge
 #View(CADUNICO[1:100,])
+
+###############################################
+# Extraindo municípios sem energia elétrica:
+freq(CADUNICO$cod_iluminacao_domic_fam, plot=F)
+munic_sem_luz <-  CADUNICO[CADUNICO$cod_iluminacao_domic_fam == 4 |
+                             CADUNICO$cod_iluminacao_domic_fam == 5 |
+                             CADUNICO$cod_iluminacao_domic_fam == 6,]
+munic_sem_luz %<>% arrange(desc(cod_iluminacao_domic_fam))
+#write.csv(munic_sem_luz, "municipios_sem_energia.csv",
+#          row.names = F, fileEncoding = "UTF-8")
+
+
 
 
 ########################################################
@@ -83,19 +109,19 @@ levels(CADUNICO$cod_iluminacao_domic_fam) <- c('Elétrica com medidor próprio',
 
 
 
-reg <- glm(pobreza ~ cod_local_domic_fam +
-             qtd_comodos_dormitorio_fam + cod_agua_canalizada_fam +
-             cod_abaste_agua_domic_fam + cod_banheiro_domic_fam +
-             cod_iluminacao_domic_fam,
-           data = CADUNICO, family = binomial(link='logit'))
-summary(reg)
+#reg <- glm(pobreza ~ cod_local_domic_fam +
+#             qtd_comodos_dormitorio_fam + cod_agua_canalizada_fam +
+#             cod_abaste_agua_domic_fam + cod_banheiro_domic_fam +
+#             cod_iluminacao_domic_fam,
+#           data = CADUNICO, family = binomial(link='logit'))
+#summary(reg)
 
 # Tentando um modelo logístico hierárquico
 reg_multi <- glmer(pobreza ~ cod_local_domic_fam + (1 | nome_munic) +
-                            qtd_comodos_dormitorio_fam + cod_agua_canalizada_fam +
-                            cod_abaste_agua_domic_fam + cod_banheiro_domic_fam +
-                            cod_iluminacao_domic_fam,
-                          data = CADUNICO, family = binomial(link='logit'))
+                     qtd_comodos_dormitorio_fam + cod_agua_canalizada_fam +
+                     cod_abaste_agua_domic_fam + cod_banheiro_domic_fam +
+                     cod_iluminacao_domic_fam,
+                   data = CADUNICO, family = binomial(link='logit'))
 summary(reg_multi)
 ICC = var(reg_multi@u) / (var(reg_multi@u)+var(residuals(reg_multi)))
 lrtest(reg, reg_multi)
@@ -145,7 +171,7 @@ ranking_munic = data.frame(rownames(resultados$nome_munic),resultados$nome_munic
 names(ranking_munic) <- c('nome_munic', 'intercepto_aleatorio')
 View(ranking_munic)
 CADUNICO <- left_join(CADUNICO, ranking_munic)
-View(CADUNICO[1:100,])
+head(CADUNICO)
 
 
 #####################################
@@ -175,9 +201,9 @@ write.table(selecao_acao1, 'selecionados_acao1.csv',
 ##############################################
 ##### FEITO
 #Filtrando os municípios do banco pessoas
-#ibge_munics = CADUNICO$cd_ibge %>% unique
-#CADPES_ibge = CADPES$cd_ibge
-#linhas = c()
+ibge_munics = CADPES$cd_ibge %>% unique
+CADDOM_ibge = CADUNICO$cd_ibge
+linhas = c()
 
 #for (i in 1:nrow(CADPES)){
 #  for (munic in ibge_munics){
@@ -189,16 +215,16 @@ write.table(selecao_acao1, 'selecionados_acao1.csv',
 #  }
 #}
 
-#selec_index = function(num, x=CADPES_ibge){
-#  retorna_index = function(a, b){
-#    if (a == x[b]){
-#      return(b)
-#    }
-#  }
-#  lista_indexes = sapply(1:length(x), retorna_index, a=num)
-#  lista_indexes = unlist(lista_indexes)
-#  return(lista_indexes)
-#}
+selec_index = function(num, x=CADDOM_ibge){
+  retorna_index = function(a, b){
+    if (a == x[b]){
+      return(b)
+    }
+  }
+  lista_indexes = sapply(1:length(x), retorna_index, a=num)
+  lista_indexes = unlist(lista_indexes)
+  return(lista_indexes)
+}
 
 #Teste
 #selec_index(2, c(1,2,5,4,6,2,7,6,2,19,2))
@@ -208,18 +234,18 @@ write.table(selecao_acao1, 'selecionados_acao1.csv',
 #library(parallel)
 #no_cores = detectCores()
 #cl = makeCluster(no_cores)
-#clusterExport(cl, c('ibge_munics', 'CADPES_ibge', 'selec_index'))
+#clusterExport(cl, c('ibge_munics', 'CADDOM_ibge', 'selec_index'))
 
 #linhas = parSapply(cl, ibge_munics, selec_index) %>% unlist
 
 #stopCluster(cl)
 
 
-#CADPES_selecao = CADPES[linhas,]
+#CADDOM_selecao = CADUNICO[linhas,]
 
-#write.csv2(CADPES_selecao, 'CADPES.csv', row.names = F)
+#write.csv2(CADDOM_selecao, 'CADDOM.csv', row.names = F)
 
-CADPES <-  fread('CADPES.csv') %>% as.data.frame(.,stringsAsFactors=F)
+#CADPES <-  fread('CADPES.csv') %>% as.data.frame(.,stringsAsFactors=F)
 
 ################################################
 ################################################
@@ -231,20 +257,19 @@ CADPES <-  fread('CADPES.csv') %>% as.data.frame(.,stringsAsFactors=F)
 rm(reg)
 gc()
 
-selecao_acao2 = CADUNICO[CADUNICO$fx_rfpc != 1,]
+selecao_acao2 = CADUNICO
 
 selecao_acao2$ind_parc_mds_fam[selecao_acao2$ind_parc_mds_fam == 0] = 999
 
 # Filtrando por se tem agua canalizada, depois cat de renda, 
 # depois comunidades tradicionais
- 
-selecao_acao2 = arrange(selecao_acao2, cod_agua_canalizada_fam,
-                        fx_rfpc, cod_familia_indigena_fam,
-                        ind_familia_quilombola_fam,
-                        ind_parc_mds_fam)
+
+selecao_acao2 = arrange(selecao_acao2, ind_familia_quilombola_fam,
+                        cod_familia_indigena_fam, ind_parc_mds_fam,
+                        fx_rfpc)
 
 View(selecao_acao2)
-amostra = selecao_acao2[1:90000,]
+amostra = selecao_acao2[1:300000,]
 freq(amostra$ano_meta,plot=F)
 View(amostra)
 
