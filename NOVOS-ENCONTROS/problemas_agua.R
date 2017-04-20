@@ -9,6 +9,7 @@ library(dplyr)
 library(tidyr)
 library(magrittr)
 library(xtable)
+library(ggplot2)
 
 setwd('C:/Users/x6905399/Documents/RASTREIA/NOVOS ENCONTROS/problemas_agua')
 
@@ -78,30 +79,49 @@ freq(dados$Tecnologia, plot=F)
 
 ### ANÁLISES:
 
+# Separando as diversas tecnologias
+ggplot(dados, aes(Tecnologia))+geom_bar(aes(fill = Tecnologia))+labs(x="",y="")+
+  theme(axis.text.x = element_blank(), axis.ticks.x = element_blank())
+
+#Tabulando as tecnologias
+tabtec = freq(dados$Tecnologia,plot=F) %>% 
+  as.data.frame(., stringsAsFactors=F)
+
+xtabtec = xtable(tabtec, caption = "Tecnologias", label='tectab', 
+               digits = 2)
+print(xtabtec, include.rownames = T, caption.placement = 'top', 
+      tabular.environment = "longtable", floating = F)
+
+
+
 ##########Poços fora de operação
 class(dados$`Em operação? 1=sim, 0=não`)
 
-dados$`Em operação? 1=sim, 0=não`[dados$`Em operação? 1=sim, 0=não` == "Não"] = "0"
-dados$`Em operação? 1=sim, 0=não`[dados$`Em operação? 1=sim, 0=não` == "R$ 0,00"] = "0"
-freq(dados$`Em operação? 1=sim, 0=não`,plot=F)
+#Separando somente os poços
+pocos = dados[dados$Tecnologia == 'Poço',]
 
-tab1 = freq(dados$Município[dados$`Em operação? 1=sim, 0=não`=="0"],plot=F) %>% 
+
+pocos$`Em operação? 1=sim, 0=não`[pocos$`Em operação? 1=sim, 0=não` == "Não"] = "0"
+pocos$`Em operação? 1=sim, 0=não`[pocos$`Em operação? 1=sim, 0=não` == "R$ 0,00"] = "0"
+freq(pocos$`Em operação? 1=sim, 0=não`,plot=F)
+
+tab1 = freq(pocos$Município[pocos$`Em operação? 1=sim, 0=não`=="0"],plot=F) %>% 
   as.data.frame(., stringsAsFactors=F) %>% mutate(nome = rownames(.)) %>% 
   arrange(desc(Frequência)) 
 tab1 %<>% .[-c(1,2),] 
 tab1 %<>% .[,-2]
 
 xtab1 = xtable(tab1, caption = "Poços fora de operação", label='poc-operacao', 
-               digits = 2, align = T)
+               digits = 2)
 print(xtab1, include.rownames = F, caption.placement = 'top', 
       tabular.environment = "longtable", floating = F)
 
 
 ### Porque está fora de operação?
-class(dados$`Se não, porque? sem análise de água=1, água imprópria para consumo humano=2, tubulação não entregue=3, impossibiliader de caraterizar quantitativa e qualitativamente=4, Sem energização=5`)
-dados$`Se não, porque? sem análise de água=1, água imprópria para consumo humano=2, tubulação não entregue=3, impossibiliader de caraterizar quantitativa e qualitativamente=4, Sem energização=5` %<>% gsub(';',',',.)
+class(pocos$`Se não, porque? sem análise de água=1, água imprópria para consumo humano=2, tubulação não entregue=3, impossibiliader de caraterizar quantitativa e qualitativamente=4, Sem energização=5`)
+pocos$`Se não, porque? sem análise de água=1, água imprópria para consumo humano=2, tubulação não entregue=3, impossibiliader de caraterizar quantitativa e qualitativamente=4, Sem energização=5` %<>% gsub(';',',',.)
 
-porque_nao_opera <- dados %>% select(Município, `Se não, porque? sem análise de água=1, água imprópria para consumo humano=2, tubulação não entregue=3, impossibiliader de caraterizar quantitativa e qualitativamente=4, Sem energização=5`) %>%
+porque_nao_opera <- pocos %>% select(Município, `Se não, porque? sem análise de água=1, água imprópria para consumo humano=2, tubulação não entregue=3, impossibiliader de caraterizar quantitativa e qualitativamente=4, Sem energização=5`) %>%
   unnest(strsplit(`Se não, porque? sem análise de água=1, água imprópria para consumo humano=2, tubulação não entregue=3, impossibiliader de caraterizar quantitativa e qualitativamente=4, Sem energização=5`, ','))
 
 porque_nao_opera %<>% .[,-2]
@@ -141,9 +161,18 @@ xtab2 <- xtable(tabela2, caption = "Motivos de não operação", label='poc-oper
 print(xtab2, include.rownames = T, caption.placement = 'top', 
       tabular.environment = "longtable", floating = F)
 
+#Gráfico
+pno_corrigido$V2 %<>% as.factor
+levels(pno_corrigido$V2) = c("Sem análise de água","Água imprópria para consumo humano",
+                             "Tubulação não entregue","Sem energização")
+
+ggplot(pno_corrigido, aes(x=V2))+geom_bar(aes(fill=V2))+
+  theme(axis.text.x = element_blank(), axis.ticks.x = element_blank())+
+  labs(x="",y="",fill="Motivos de não operação")
+
 
 # Separando cada motivo por município:
-motivo1 = freq(pno_corrigido$V1[pno_corrigido$V2 == 1],plot=F) 
+motivo1 = freq(pno_corrigido$V1[pno_corrigido$V2 == "Sem análise de água"],plot=F) 
 motivo1 = motivo1 %>% as.data.frame(.,stringsAsFactors=F) %>%
   mutate(Município = rownames(motivo1)) %>% arrange(desc(Frequência)) %>% .[-1,]
 xmotivo1 = xtable(motivo1, caption = "Municípios sem análise de água", label='motivo1', 
@@ -153,19 +182,19 @@ print(xmotivo1, include.rownames = F, caption.placement = 'top',
 
 
 
-motivo2 = freq(pno_corrigido$V1[pno_corrigido$V2 == 2],plot=F) 
-motivo2 = motivo2 %>% as.data.frame(.,stringsAsFactors=F) %>%
-  mutate(Município = rownames(motivo2)) %>% arrange(desc(Frequência)) %>% .[-1,]
-xmotivo2 = xtable(motivo2, 
-                  caption = "Municípios com poços com água imprópria para o consumo",
-                  label='motivo2', 
-                  digits = 2)
-print(xmotivo2, include.rownames = F, caption.placement = 'top', 
-      tabular.environment = "longtable", floating = F)
+#motivo2 = freq(pno_corrigido$V1[pno_corrigido$V2 == "Água imprópria para consumo humano"],plot=F) 
+#motivo2 = motivo2 %>% as.data.frame(.,stringsAsFactors=F) %>%
+#  mutate(Município = rownames(motivo2)) %>% arrange(desc(Frequência)) %>% .[-2,]
+#xmotivo2 = xtable(motivo2, 
+#                  caption = "Municípios com poços com água imprópria para o consumo",
+#                  label='motivo2', 
+#                  digits = 2)
+#print(xmotivo2, include.rownames = F, caption.placement = 'top', 
+#      tabular.environment = "longtable", floating = F)
 
 
 
-motivo3 = freq(pno_corrigido$V1[pno_corrigido$V2 == 3],plot=F) 
+motivo3 = freq(pno_corrigido$V1[pno_corrigido$V2 == "Tubulação não entregue"],plot=F) 
 motivo3 = motivo3 %>% as.data.frame(.,stringsAsFactors=F) %>%
   mutate(Município = rownames(motivo3)) %>% arrange(desc(Frequência)) %>% .[-1,]
 xmotivo3 = xtable(motivo3, 
@@ -176,7 +205,7 @@ print(xmotivo3, include.rownames = F, caption.placement = 'top',
       tabular.environment = "longtable", floating = F)
 
 
-motivo4 = freq(pno_corrigido$V1[pno_corrigido$V2 == 5],plot=F) 
+motivo4 = freq(pno_corrigido$V1[pno_corrigido$V2 == "Sem energização"],plot=F) 
 motivo4 = motivo4 %>% as.data.frame(.,stringsAsFactors=F) %>%
   mutate(Município = rownames(motivo4)) %>% arrange(desc(Frequência)) %>% .[-1,]
 xmotivo4 = xtable(motivo4, 
@@ -195,17 +224,29 @@ freq(dados$Existe.Problema.Fundiário...sim...1..não...0., plot=F)
 
 
 ### Licença ambiental - Possui outorga?
-which(dados$Outorga.de.Uso..sim...1..não...0. == '')
-dados$Outorga.de.Uso..sim...1..não...0.[dados$Outorga.de.Uso..sim...1..não...0. == ''] = NA
+dados_outorga = rbind(secir, sedinor, igam)
 
-outorga <- freq(dados$Outorga.de.Uso..sim...1..não...0., plot=F) %>% 
+which(dados_outorga$Outorga.de.Uso..sim...1..não...0. == '')
+dados_outorga$Outorga.de.Uso..sim...1..não...0.[dados_outorga$Outorga.de.Uso..sim...1..não...0. == ''] = NA
+
+outorga <- freq(dados_outorga$Outorga.de.Uso..sim...1..não...0., plot=F) %>% 
   as.data.frame(., stringsAsFactors=F)
 xoutorga <- xtable(outorga, caption = "Licença ambiental - possui outorga?", label='outorga', 
                    digits = 2)
 print(xoutorga, include.rownames = T, caption.placement = 'top', 
       tabular.environment = "longtable", floating = F)
 
-munic_outorga <- cbind(dados$Município, dados$Outorga.de.Uso..sim...1..não...0.) %>%
+
+ggplot(dados_outorga, aes(Outorga.de.Uso..sim...1..não...0.))+
+  geom_bar(aes(fill=Outorga.de.Uso..sim...1..não...0.))+
+  theme(legend.position = "none")+scale_x_discrete(labels=c("Não",
+                                                             "Outorgado pelo IGAM",
+                                                             "NA"))+
+  labs(x="",y="")
+
+
+# Por município
+munic_outorga <- cbind(dados_outorga$Município, dados_outorga$Outorga.de.Uso..sim...1..não...0.) %>%
   as.data.frame(., stringsAsFactors=F) %>% filter(V2 == 0)
 
 semoutorga = freq(munic_outorga$V1, plot=F) 
