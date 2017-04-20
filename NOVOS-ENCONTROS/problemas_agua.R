@@ -81,7 +81,9 @@ freq(dados$Tecnologia, plot=F)
 
 # Separando as diversas tecnologias
 ggplot(dados, aes(Tecnologia))+geom_bar(aes(fill = Tecnologia))+labs(x="",y="")+
-  theme(axis.text.x = element_blank(), axis.ticks.x = element_blank())
+  theme(axis.text.x = element_blank(), axis.ticks.x = element_blank(),
+        legend.position = "top")+guides(fill=guide_legend(ncol=1))
+  
 
 #Tabulando as tecnologias
 tabtec = freq(dados$Tecnologia,plot=F) %>% 
