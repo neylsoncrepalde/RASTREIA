@@ -34,8 +34,8 @@ names(igam)[26] = c("Solução proposta")
 ###############
 copanor = read.csv2('problemas_agua_copanor.csv', stringsAsFactors = F)
 View(copanor)
-#names(copanor)[20:21] = c('Em operação? 1=sim, 0=não','Se não, porque? sem análise de água=1, água imprópria para consumo humano=2, tubulação não entregue=3, impossibiliader de caraterizar quantitativa e qualitativamente=4, Sem energização=5')
-#names(copanor)[26] = c("Solução proposta")
+names(copanor)[13:14] = c('Em operação? 1=sim, 0=não','Se não, porque? sem análise de água=1, água imprópria para consumo humano=2, tubulação não entregue=3, impossibiliader de caraterizar quantitativa e qualitativamente=4, Sem energização=5')
+names(copanor)[15] = c("Solução proposta")
 ###############
 
 
@@ -48,10 +48,32 @@ names(sedinor)[26] = c("Solução proposta")
 sedinor %<>% .[1:219,]
 ###############
 
-dados = rbind(copanor, sedinor, igam, secir)
-freq(dados$Tecnologia, plot=F)
-View(copanor)
+dados = rbind(copanor[,c(1:5,12:15)], sedinor[,c(1:5,19:21,26)], 
+              igam[,c(1:5,19:21,26)], secir[,c(1:5,19:21,26)])
 
+for (i in 1:nrow(dados)){
+  if (dados$Tecnologia[i] == "barragem"){
+    dados$Tecnologia[i] = "Barragem"
+  }
+  if (dados$Tecnologia[i] == "Perfuração e Equipagem de Poços tubulares profundos"){
+    dados$Tecnologia[i] = "Poço"
+  }
+  if (dados$Tecnologia[i] == "poço"){
+    dados$Tecnologia[i] = "Poço"
+  }
+  if (dados$Tecnologia[i] == "Sistema de abastecimento de água"){
+    dados$Tecnologia[i] = "Poço"
+  }
+  if (dados$Tecnologia[i] == "Sistema simplificado de captação e distribuição"){
+    dados$Tecnologia[i] = "Poço"
+  }
+  if (dados$Tecnologia[i] == "Ssitema simplificado de captação e distribuição de água"){
+    dados$Tecnologia[i] = "Poço"
+  }
+}
+
+freq(dados$Tecnologia, plot=F)
+# PRONTINHO!
 ##############################################
 
 ### ANÁLISES:
