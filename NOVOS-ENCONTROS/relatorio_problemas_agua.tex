@@ -45,11 +45,19 @@
 	No gráfico \ref{tec} e na tabela \ref{tectab} apresentamos a distribuição das tecnologias em uso pelos órgãos responsáveis.
 	
 	\begin{figure}[!h]
-		\centering
+		%\centering
 		\caption{Tecnologias}
 		\label{tec}
-		\includegraphics[scale=1]{tecnologias.png}
+		%\includegraphics[scale=.6]{tecnologias.png}
+		\includegraphics[scale=.8]{tecnologias_orgaos.png}
 	\end{figure}
+
+%	\begin{figure}[!h]
+%		\centering
+%		\caption{Tecnologias por órgão}
+%		\label{tec-orgao}
+%		\includegraphics[scale=.6]{tecnologias_orgaos.png}
+%	\end{figure}
 
 	% latex table generated in R 3.3.3 by xtable 1.8-2 package
 	% Thu Apr 20 13:38:38 2017
@@ -70,8 +78,10 @@
 		\label{tectab}
 	\end{longtable}
 	\end{scriptsize}
+
+
 	
-	É possível observar que \textbf{poços} estão presentes em 91,5\% das ações mapeadas. Priorizaremos nossas análises subsequentes nos problemas relacionados a esses casos.
+	É possível observar que \textbf{poços} estão presentes em 91,5\% das ações mapeadas. Entretanto, ao observarmos a distribuição de tecnologias por órgão responsável, podemos perceber que a SECIR é a única instituição responsável por \textbf{implantação de sistemas de dessalinização} e somente a COPANOR possui ações com barragens. Devido à predominância de tecnologias relacionadas a poços, priorizaremos nossas análises subsequentes nesses problemas.
 
 	\section{Poços fora de operação por município}
 	
@@ -187,7 +197,7 @@
 		\centering
 		\caption{Motivos de não operação}
 		\label{motivos-grafico}
-		\includegraphics[scale=1]{motivos_grafico.png}
+		\includegraphics[scale=.8]{motivos_grafico.png}
 	\end{figure}
 	
 	
@@ -401,10 +411,10 @@
 		\centering
 		\caption{Licença ambiental - possui outorga?}
 		\label{outorga-fig}
-		\includegraphics[scale=1]{outorgas.png}
+		\includegraphics[scale=.8]{outorgas_orgaos.png}
 	\end{figure}
 	
-	Com relação ao licenciamento ambiental, verificamos primeiro a distribuição de frequências das categorias da variável - ver tabela \ref{outorga} e figura \ref{outorga-fig}. Aqui constam apenas os dados fornecidos pelas instituições SEDINOR, SEDIR e IGAM. É possível verificar que aprox. 86\% das ações cadastradas válidas para análise (desconsiderando as ``não respostas'') não possuem outorga. Na tabela \ref{semoutorga} apresentamos a distribuição das ações sem outorga por município.
+	Com relação ao licenciamento ambiental, verificamos primeiro a distribuição de frequências das categorias da variável - ver tabela \ref{outorga} - bem como sua distribuição por órgão competente - ver figura \ref{outorga-fig}. Aqui constam apenas os dados fornecidos pelas instituições SEDINOR, SEDIR e IGAM. É possível verificar que aprox. 86\% das ações cadastradas válidas para análise (desconsiderando as ``não respostas'') não possuem outorga as quais estão concentradas com a SEDINOR. Na tabela \ref{semoutorga} apresentamos a distribuição das ações sem outorga por município.
 	
 	
 
@@ -561,7 +571,39 @@
 			\label{propostas}
 		\end{longtable}
 	\end{scriptsize}
+
+
+	\section{Descrição geral das ações}
 	
+	Seguimos apresentando uma descrição geral da situação das ações empreendidas por SEDINOR, SECIR e IGAM. Esta descrição possui mais categorias e possibilita, entre outras coisas, a análise de ações cuja tubulação já foi entregue e ações cuja tubulação não foi entregue. Podemos verificar na tabela \ref{desc-geral} e na figura \ref{desc-geral-fig} a distribuição da variável por situação descrita.
+	
+	\begin{scriptsize}		
+	% latex table generated in R 3.3.3 by xtable 1.8-2 package
+	% Mon Apr 24 16:23:41 2017
+	\begin{longtable}{rrrr}
+		\caption{Descrição geral} \\ 
+		\hline
+		& Frequência & Percentual & \% Válido \\ 
+		\hline
+		Água imprópria para consumo humano & 6.00 & 1.22 & 1.29 \\ 
+		Complementação das ações previstas no Programa ProÁgua & 36.00 & 7.30 & 7.74 \\ 
+		Fase: Estudo da análise da água & 207.00 & 41.99 & 44.52 \\ 
+		Tubulação e reservatório entregue & 185.00 & 37.53 & 39.78 \\ 
+		Tubulação e reservatório não entregue & 31.00 & 6.29 & 6.67 \\ 
+		NA's & 28.00 & 5.68 &  \\ 
+		Total & 493.00 & 100.00 & 100.00 \\ 
+		\hline
+		\hline
+		\label{desc-geral}
+	\end{longtable}
+	\end{scriptsize}
+
+	\begin{figure}[!h]
+		\centering
+		\caption{Descrição Geral}
+		\label{desc-geral-fig}
+		\includegraphics[scale=1]{descricao_geral.png}
+	\end{figure}
 	
 	\newpage
 	
