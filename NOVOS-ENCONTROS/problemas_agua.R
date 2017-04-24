@@ -4,6 +4,36 @@
 # Neylson Crepalde
 #####################################
 
+#################################
+multiplot <- function(..., plotlist = NULL, file, cols = 1, layout = NULL) {
+  require(grid)
+  
+  plots <- c(list(...), plotlist)
+  
+  numPlots = length(plots)
+  
+  if (is.null(layout)) {
+    layout <- matrix(seq(1, cols * ceiling(numPlots/cols)),
+                     ncol = cols, nrow = ceiling(numPlots/cols))
+  }
+  
+  if (numPlots == 1) {
+    print(plots[[1]])
+    
+  } else {
+    grid.newpage()
+    pushViewport(viewport(layout = grid.layout(nrow(layout), ncol(layout))))
+    
+    for (i in 1:numPlots) {
+      matchidx <- as.data.frame(which(layout == i, arr.ind = TRUE))
+      
+      print(plots[[i]], vp = viewport(layout.pos.row = matchidx$row,
+                                      layout.pos.col = matchidx$col))
+    }
+  }
+}
+#################################
+
 library(descr)
 library(dplyr)
 library(tidyr)
@@ -80,9 +110,9 @@ freq(dados$Tecnologia, plot=F)
 ### ANÁLISES:
 
 # Separando as diversas tecnologias
-ggplot(dados, aes(Tecnologia))+geom_bar(aes(fill = Tecnologia))+labs(x="",y="")+
+g1 = ggplot(dados, aes(Tecnologia))+geom_bar(aes(fill = Tecnologia))+labs(x="",y="")+
   theme(axis.text.x = element_blank(), axis.ticks.x = element_blank(),
-        legend.position = "top")+guides(fill=guide_legend(ncol=1))
+        legend.position = "none")
   
 
 #Tabulando as tecnologias
@@ -94,7 +124,14 @@ xtabtec = xtable(tabtec, caption = "Tecnologias", label='tectab',
 print(xtabtec, include.rownames = T, caption.placement = 'top', 
       tabular.environment = "longtable", floating = F)
 
+#Tecnologias por órgão
+###
+g2 = ggplot(dados, aes(Tecnologia))+geom_bar(aes(fill = Tecnologia))+labs(x="",y="")+
+  theme(axis.text.x = element_blank(), axis.ticks.x = element_blank(),
+        legend.position = "top")+guides(fill=guide_legend(ncol=1))+
+  facet_wrap(~Órgão.Entidade)
 
+multiplot(g1,g2, cols=2)
 
 ##########Poços fora de operação
 class(dados$`Em operação? 1=sim, 0=não`)
@@ -246,6 +283,14 @@ ggplot(dados_outorga, aes(Outorga.de.Uso..sim...1..não...0.))+
                                                              "NA"))+
   labs(x="",y="")
 
+##Possui outorga por instituição
+ggplot(dados_outorga, aes(Outorga.de.Uso..sim...1..não...0.))+
+  geom_bar(aes(fill=Outorga.de.Uso..sim...1..não...0.))+
+  theme(legend.position = "none")+scale_x_discrete(labels=c("Não",
+                                                            "Outorgado pelo IGAM",
+                                                            "NA"))+
+  labs(x="",y="")+facet_wrap(~Órgão.Entidade)
+
 
 # Por município
 munic_outorga <- cbind(dados_outorga$Município, dados_outorga$Outorga.de.Uso..sim...1..não...0.) %>%
@@ -284,6 +329,42 @@ xtab_propostas = xtable(tab_propostas, caption = "Principais propostas apresenta
                         digits = 2)
 print(xtab_propostas, include.rownames = F, caption.placement = 'top', 
       tabular.environment = "longtable", floating = F)
+
+#############################################################################
+# Separando tubulação entregue e não entregue
+# dados de SECIR, SEDINOR e IGAM, col13
+
+tubulacao <- rbind(secir[,c(1,2,13)], sedinor[,c(1,2,13)], igam[,c(1,2,13)])
+names(tubulacao)[3] <- "Problemas"
+freq(tubulacao$Problemas, plot=F)
+
+#Separando por problema
+
+tubulacao = tubulacao %>% unnest(strsplit(Problemas, ', '))
+names(tubulacao)[4] = "Prob1"
+tubulacao = tubulacao %>% unnest(strsplit(Prob1, ','))
+names(tubulacao)[5] = "Prob.dividido"
+tubulacao$Prob.dividido[tubulacao$Prob.dividido == "10 "] = "10"
+
+tubulacao$Prob.dividido[tubulacao$Prob.dividido == "8"] = "Água imprópria para consumo humano"
+tubulacao$Prob.dividido[tubulacao$Prob.dividido == "9"] = "Fase: Estudo da análise da água"
+tubulacao$Prob.dividido[tubulacao$Prob.dividido == "10"] = "Tubulação e reservatório entregue"
+tubulacao$Prob.dividido[tubulacao$Prob.dividido == "11"] = "Tubulação e reservatório não entregue"
+
+#Tabulando descrição geral
+tub_tab = freq(tubulacao$Prob.dividido)
+tub_tab = tub_tab %>% as.data.frame(.,stringsAsFactors=F)
+xtub_tab = xtable(tub_tab, caption = "Descrição geral",
+                        label='desc-geral', 
+                        digits = 2)
+print(xtub_tab, include.rownames = T, caption.placement = 'top', 
+      tabular.environment = "longtable", floating = F)
+
+#Plotando
+ggplot(tubulacao, aes(Prob.dividido))+geom_bar(aes(fill = Prob.dividido))+
+  labs(x="",y="")+theme(axis.text.x = element_blank(), axis.ticks.x = element_blank(),
+        legend.position = "top")+scale_fill_discrete(name="Descrição\nGeral")+
+  guides(fill=guide_legend(ncol=1))
 
 
 
