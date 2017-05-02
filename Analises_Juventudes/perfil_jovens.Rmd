@@ -232,14 +232,19 @@ g2
 ```{r}
 ##### Fazendo strsplit
 #dados3 <- dados2 %>% separate(col=servico, into=c("Mobilizador","Região"), 
-#                              sep = " - ")
+#                    sep = " - ") %>% .[,3]
+
+# Gerando sem copiar o data.frame
+#tabela = table(dados2 %>% separate(col=servico, into=c("Mobilizador","Região"), 
+#                    sep = " - ") %>% .[,3],
+#               dados2$genero)
+
 
 ######
-tabela = table(dados2$servico,dados2$genero)
+tabela = table(dados2$servico, dados2$genero)
 tabela = tabela[,-1]
 knitr::kable(tabela)
 ```
-
 ## Bairros
 
 ```{r, message=FALSE, warning=FALSE}
