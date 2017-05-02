@@ -238,9 +238,14 @@ g2
 #tabela = table(dados2 %>% separate(col=servico, into=c("Mobilizador","Região"), 
 #                    sep = " - ") %>% .[,3],
 #               dados2$genero)
-
-
 ######
+
+#####Correções de mal preenchimento - Begin
+dados2[3][dados2[3] == 'Consultor Empreendedorismo 4 - Betim / Jardim Teresópolis e Citrolândia e Santa Isabel'] = 'Mobilizador Social 4 - Betim / Jardim Teresópolis'
+dados2$servico[dados2$servico == 'Consultor Emprego 4  - Betim / Jardim Teresópolis e Citrolândia e Santa Isabel'] = 'Mobilizador Social 4 - Betim / Jardim Teresópolis'
+######Correções de mal preenchimento - End
+
+
 tabela = table(dados2$servico, dados2$genero)
 tabela = tabela[,-1]
 knitr::kable(tabela)
