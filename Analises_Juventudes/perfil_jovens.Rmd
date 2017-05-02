@@ -2,10 +2,15 @@
 title: "Perfil Socioprofissional dos Jovens"
 output:
   html_notebook: default
-date: "07 de abril de 2017"
+date: "02 de maio de 2017"
 ---
 
-![](C:/Users/x6905399/Documents/RASTREIA/RastreiaLogo.png)
+```{r}
+# Diretorio Neylson
+# ![](C:/Users/x6905399/Documents/RASTREIA/RastreiaLogo.png)
+```
+
+  ![](C:/Users/x16475588/Desktop/demanda/LogoRastreia.png)
 
 ### Monitoramento das aplicações dos questionários
 
@@ -82,12 +87,12 @@ rm_accent <- function(str,pattern="all") {
   #            Outras palavras aceitas: "all" (retira todos os acentos, que são "´", "`", "^", "~", "¨", "ç")
   if(!is.character(str))
     str <- as.character(str)
-
+  
   pattern <- unique(pattern)
-
+  
   if(any(pattern=="Ç"))
     pattern[pattern=="Ç"] <- "ç"
-
+  
   symbols <- c(
     acute = "áéíóúÁÉÍÓÚýÝ",
     grave = "àèìòùÀÈÌÒÙ",
@@ -96,7 +101,7 @@ rm_accent <- function(str,pattern="all") {
     umlaut = "äëïöüÄËÏÖÜÿ",
     cedil = "çÇ"
   )
-
+  
   nudeSymbols <- c(
     acute = "aeiouAEIOUyY",
     grave = "aeiouAEIOU",
@@ -105,22 +110,60 @@ rm_accent <- function(str,pattern="all") {
     umlaut = "aeiouAEIOUy",
     cedil = "cC"
   )
-
+  
   accentTypes <- c("´","`","^","~","¨","ç")
-
+  
   if(any(c("all","al","a","todos","t","to","tod","todo")%in%pattern)) # opcao retirar todos
     return(chartr(paste(symbols, collapse=""), paste(nudeSymbols, collapse=""), str))
-
+  
   for(i in which(accentTypes%in%pattern))
     str <- chartr(symbols[i],nudeSymbols[i], str)
-
+  
   return(str)
 }
 
-setwd("C:/Users/x6905399/Documents/RASTREIA/JUVENTUDES")
+
+setwd("C:/Users/x16475588/Desktop/demanda/")
 dados <- fread('perfil_jovens.csv', encoding="UTF-8") %>% 
   as.data.frame(., stringsAsFactors=F) %>% .[-1,]
 dados[,4][dados[,4] == 'GISLENE MARIA DAMASCENO.'] = 'GISLENE MARIA DAMASCENO'
+dados[,4][dados[,4] == 'MAORCOS DINIZETTI DA SILVA'] = 'MARCOS DONIZETTI DA SILVA'
+dados[,4][dados[,4] == 'MARCOS DONIZETT DA SILVA'] = 'MARCOS DONIZETTI DA SILVA'
+dados[,4][dados[,4] == 'ANA PAULADE CASTRO DA CRUZ'] = 'ANA PAULA DE CASTRO DA CRUZ'
+dados[,4][dados[,4] == 'PAULANERES'] = 'PAULA NERES' 
+dados[,4][dados[,4] == 'AMANDA STEFANY DE SENA'] = 'JOELDSON DE JESUS SILVA' #Verificado no BD no campo e-mail
+
+dados[,4][dados[,4] == 'CAROLINE OLIVERIRA'] = 'CAROLINE OLIVEIRA'
+dados[,4][dados[,4] == 'CYNTHIA DA SILVA BORGES'] = 'CYNTHIA ROBERTA DA SILVA BORGES'
+dados[,4][dados[,4] == 'CYNTHIA BORGES'] = 'CYNTHIA ROBERTA DA SILVA BORGES'
+dados[,4][dados[,4] == 'CYNTHIA'] = 'CYNTHIA ROBERTA DA SILVA BORGES'
+
+dados[,4][dados[,4] == 'CYNTHIA  DA SILVA BORGES'] = 'CYNTHIA ROBERTA DA SILVA BORGES'
+
+dados[,4][dados[,4] == 'FLAVIA VILELA'] = 'FLAVIA VIVELA'
+dados[,4][dados[,4] == 'GABRIELA OLIVEIRA'] = 'GABRIELA DE OLIVEIRA PERACINI'
+dados[,4][dados[,4] == 'GABRIELA OLIVEIRA PERACINI'] = 'GABRIELA DE OLIVEIRA PERACINI'
+dados[,4][dados[,4] == 'GABRIELA OLIVEIRA PIRACINI'] = 'GABRIELA DE OLIVEIRA PERACINI'
+dados[,4][dados[,4] == 'GABRIELA PERACINI'] = 'GABRIELA DE OLIVEIRA PERACINI'
+dados[,4][dados[,4] == 'GABRIELA'] = 'GABRIELA DE OLIVEIRA PERACINI'
+dados[,4][dados[,4] == 'GENISE MACHADO DE C. BEIRIGO'] = 'GENISE MACHADO DE CARVALHO BEIRIGO'
+dados[,4][dados[,4] == 'ISABELLA L,M, SILVEIRA'] = 'ISABELLA L. M. SILVEIRA'
+dados[,4][dados[,4] == 'ISABELLA L.M. SILVEIRA'] = 'ISABELLA L. M. SILVEIRA'
+dados[,4][dados[,4] == 'JESSICA C. BARBOSA'] = 'JÉSSICA CAROLLINE BARBOSA'
+dados[,4][dados[,4] == 'JÉSSICA EDUANIA FRANCISCA ARLA'] = 'JÉSSICA EDUANIA FRANCISCO ARLAR'
+dados[,4][dados[,4] == 'KARINA S. ANDRADE'] = 'KARINA SILVA DE ANDRADE'
+dados[,4][dados[,4] == 'LUCIENE BATISTA GODINHO'] = 'LUCIENE BATISTA GODINHO'
+dados[,4][dados[,4] == 'PALOMA RESENDE'] = 'PALOMA RESENDE SILVA LIMA'
+dados[,4][dados[,4] == 'PALOMA REZENDE SILVA LIMA'] = 'PALOMA RESENDE SILVA LIMA'
+dados[,4][dados[,4] == 'PATRÍCIA DE O. RESENDE'] = 'PATRÍCIA DE OLIVEIRA RESENDE'
+dados[,4][dados[,4] == 'VANESA ROMUALDO DE OLIVEIRA'] = 'VANESSA ROMUALDO DE OLIVEIRA'
+
+
+dados <- subset(dados, dados$Serviço !='Mobilizador Social 10 - Passos / Novo Horizonte')
+
+
+#dados[which(dados$Serviço == 'Mobilizador Social 10 - Passos / Novo Horizonte'), ] <-  NULL
+
 dados[,4] %<>% toupper
 ```
 
@@ -141,7 +184,7 @@ datatable(tabela[-nrow(tabela),c(5,1)])
 ```{r, warning=FALSE, fig.width=9, fig.height=6}
 datas = dados[,1] %>% dmy_hms %>% as_date %>%
   table %>% as.data.frame(., stringsAsFactors=F)
-  
+
 limits = c("2017-03-15", as.character(Sys.Date())) %>% ymd %>% as_date
 names(datas) = c('Data','Questionarios')
 datas$Data %<>% as_date
@@ -180,7 +223,7 @@ names(dados2)[14] <- "idade"
 names(dados2)[16] <- "genero"
 names(dados2)[15] <- "cor"
 names(dados2)[10] <- "bairro"
-g2 <- ggplot(dados2, aes(x=1,y=idade))+geom_boxplot(fill='#ffd42a')+labs(y="Idade", x="", title="Boxplots")+facet_wrap(~parte1)
+g2 <- ggplot(dados2, aes(x=idade))+geom_histogram(fill='#ffd42a', bins = 10)+labs(y="", x="Idade", title="Histogramas")+facet_wrap(~parte1)
 g2
 ```
 
