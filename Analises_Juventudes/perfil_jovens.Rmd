@@ -230,6 +230,11 @@ g2
 ## Gênero
 
 ```{r}
+##### Fazendo strsplit
+#dados3 <- dados2 %>% separate(col=servico, into=c("Mobilizador","Região"), 
+#                              sep = " - ")
+
+######
 tabela = table(dados2$servico,dados2$genero)
 tabela = tabela[,-1]
 knitr::kable(tabela)
