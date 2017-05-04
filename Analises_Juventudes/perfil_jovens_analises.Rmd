@@ -2,7 +2,7 @@
 title: "Perfil Socioprofissional dos Jovens - Relatório Parcial"
 output:
   html_notebook: default
-date: "03 de maio de 2017"
+date: "04 de maio de 2017"
 ---
 
 ![](C:/Users/x6905399/Documents/RASTREIA/RastreiaLogo.png)
@@ -25,6 +25,7 @@ library(maps)
 library(tidyr)
 library(plotly)
 library(wordcloud)
+library(tm)
 ##############################################
 # Multiple plot function
 #
@@ -353,7 +354,20 @@ pal <- pal[-(1:4)]
 wordcloud(enc2native(text), min.freq = 1, random.order = F, colors = pal, max.words = 100)
 ```
 
+## Já parou de estudar e despois voltou?
 
+```{r, message=F, warning=F, fig.width=9, fig.height=6}
+names(dados2)[45] <- "parou.voltou"
+ggplot(dados2, aes(parou.voltou))+geom_bar(fill='#ffd42a')+labs(y="", x="", title="")+facet_wrap(~parte1)
+```
+
+# Orientação profissional
+
+## Participou de atividades de orientação para o trabalho?
+
+```{r, message=F, warning=F, fig.width=9, fig.height=6}
+
+```
 
 
 
