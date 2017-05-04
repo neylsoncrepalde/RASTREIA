@@ -1,5 +1,5 @@
 ---
-title: "Perfil Socioprofissional dos Jovens - Relatório Parcial"
+title: "Perfil Socioprofissional dos Jovens - Relatório Geral"
 output:
   html_notebook: default
 date: "04 de maio de 2017"
@@ -366,10 +366,60 @@ ggplot(dados2, aes(parou.voltou))+geom_bar(fill='#ffd42a')+labs(y="", x="", titl
 ## Participou de atividades de orientação para o trabalho?
 
 ```{r, message=F, warning=F, fig.width=9, fig.height=6}
-
+names(dados2)[46] <- "orientacao.trab"
+ggplot(dados2, aes(orientacao.trab))+geom_bar(fill='#ffd42a')+labs(y="", x="", title="")+facet_wrap(~parte1)
 ```
 
+## Já trabalhou em função em que se qualificou?
 
+```{r, message=F, warning=F, fig.width=9, fig.height=6}
+names(dados2)[51] <- "trab.fun.qual"
+ggplot(dados2, aes(trab.fun.qual))+geom_bar(fill='#ffd42a')+labs(y="", x="", title="")+facet_wrap(~parte1)
+```
+
+É relevante investigar aqui quais funções de qualificação tem sucesso na obtenção de emprego e quais não tem.
+
+# Perspectiva sobre o trabalho
+
+## Quais as principais dificuldades que você enfrentou em seus trabalhos anteriores?
+
+```{r, message=F, warning=F, fig.width=7, fig.height=7}
+text <- dados[,71] %>% tolower %>% removePunctuation %>% removeWords(stopwords('pt')) %>% removeWords(c("nenhuma","nenhum"))
+pal <- brewer.pal(9,"Reds")
+pal <- pal[-(1:4)]
+wordcloud(enc2native(text), min.freq = 1, random.order = F, colors = pal, max.words = 100)
+```
+
+## Em que função está trabalhando?
+
+```{r, message=F, warning=F, fig.width=9, fig.height=6}
+text.m <- dados[,74][dados2$genero == "Masculino"] %>% tolower %>% removePunctuation %>% removeWords(stopwords('pt')) #%>% removeWords(c("nenhuma","nenhum"))
+text.f <- dados[,74][dados2$genero == "Feminino"] %>% tolower %>% removePunctuation %>% removeWords(stopwords('pt')) #%>% removeWords(c("nenhuma","nenhum"))
+
+pal <- brewer.pal(9,"Reds")
+pal <- pal[-(1:4)]
+
+par(mfrow=c(1,2))
+wordcloud(enc2native(text.m), min.freq = 1, random.order = F, colors = pal, max.words = 100); title(main = "Homens")
+wordcloud(enc2native(text.f), min.freq = 1, random.order = F, colors = pal, max.words = 100); title(main = "Mulheres")
+par(mfrow=c(1,1))
+```
+
+## Ja se sentiu discriminado no trabalho ou na busca por emprego?
+
+```{r, message=F, warning=F, fig.width=9, fig.height=6}
+names(dados2)[75] <- "discriminado"
+ggplot(dados2, aes(discriminado))+geom_bar(fill='#ffd42a')+labs(y="", x="", title="")+facet_wrap(~parte1)
+```
+
+## Por quê?
+
+```{r, message=F, warning=F, fig.width=7, fig.height=7}
+text <- dados[,76] %>% tolower %>% removePunctuation %>% removeWords(stopwords('pt')) %>% removeWords(c("causa","porque"))
+pal <- brewer.pal(9,"Reds")
+pal <- pal[-(1:4)]
+wordcloud(enc2native(text), min.freq = 1, random.order = F, colors = pal, max.words = 100)
+```
 
 
 
