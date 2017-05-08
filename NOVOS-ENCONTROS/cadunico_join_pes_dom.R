@@ -26,7 +26,7 @@ names(CADPES)[selec]
 # Lendo os selecionados da Emater 2 e separando as variáveis de interesse
 emater2 <- fread("selecionados_acao2.csv") %>% as.data.frame(., stringsAsFactors=F)
 names(emater2)
-manter <- c(2,3,4,9:18,67:69)
+manter <- c(1,2,3,4,22,8:17,67:69)
 emater2 <- emater2[,manter]
 
 #Juntando tudo
@@ -41,7 +41,7 @@ View(emater.merge)
 #Agora juntando a acao1
 emater1 <- fread("selecionados_acao1.csv") %>% as.data.frame(., stringsAsFactors=F)
 names(emater1)
-manter <- c(2,3,4,9:18,67:69)
+manter <- c(1,2,3,4,22,8:17,66:69)
 emater1 <- emater1[,manter]
 emater.merge1 <- left_join(emater1, selecao, by="cod_familiar_fam")
 
