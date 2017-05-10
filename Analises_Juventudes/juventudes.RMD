@@ -1,0 +1,554 @@
+---
+title: "Perfil Socioprofissional dos Jovens - Relatório Geral"
+output:
+  html_notebook: default
+  html_document: default
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+---
+  
+```{r}
+args <- commandArgs(TRUE)
+selecao <- as.numeric(args)
+```
+
+```{r, echo=FALSE, include=F}
+# Setando local da Imagem - BEGIN
+logoUrl <- "http://homepages.dcc.ufmg.br/~marcusvoliveira/rastreia/imagens/logo.png"
+# Setando local da Imagem - END
+```
+
+![](`r logoUrl`)
+### Monitoramento das aplicações dos questionários
+
+```{r setup, echo=FALSE, include=F}
+#Library e funções - BEGIN
+library(data.table)
+library(bit64)
+library(DT)
+library(magrittr)
+library(descr)
+library(dplyr)
+library(lubridate)
+library(ggplot2)
+library(scales)
+library(maptools)
+library(maps)
+library(tidyr)
+library(plotly)
+library(wordcloud)
+library(tm)
+library(googlesheets)
+##############################################
+# Multiple plot function
+#
+# ggplot objects can be passed in ..., or to plotlist (as a list of ggplot objects)
+# - cols:   Number of columns in layout
+# - layout: A matrix specifying the layout. If present, 'cols' is ignored.
+#
+# If the layout is something like matrix(c(1,2,3,3), nrow=2, byrow=TRUE),
+# then plot 1 will go in the upper left, 2 will go in the upper right, and
+# 3 will go all the way across the bottom.
+#
+multiplot <- function(..., plotlist=NULL, file, cols=1, layout=NULL) {
+  library(grid)
+  
+  # Make a list from the ... arguments and plotlist
+  plots <- c(list(...), plotlist)
+  
+  numPlots = length(plots)
+  
+  # If layout is NULL, then use 'cols' to determine layout
+  if (is.null(layout)) {
+    # Make the panel
+    # ncol: Number of columns of plots
+    # nrow: Number of rows needed, calculated from # of cols
+    layout <- matrix(seq(1, cols * ceiling(numPlots/cols)),
+                     ncol = cols, nrow = ceiling(numPlots/cols))
+  }
+  
+  if (numPlots==1) {
+    print(plots[[1]])
+    
+  } else {
+    # Set up the page
+    grid.newpage()
+    pushViewport(viewport(layout = grid.layout(nrow(layout), ncol(layout))))
+    
+    # Make each plot, in the correct location
+    for (i in 1:numPlots) {
+      # Get the i,j matrix positions of the regions that contain this subplot
+      matchidx <- as.data.frame(which(layout == i, arr.ind = TRUE))
+      
+      print(plots[[i]], vp = viewport(layout.pos.row = matchidx$row,
+                                      layout.pos.col = matchidx$col))
+    }
+  }
+}
+
+rm_accent <- function(str,pattern="all") {
+  # Rotinas e funções úteis V 1.0
+  # rm.accent - REMOVE ACENTOS DE PALAVRAS
+  # Função que tira todos os acentos e pontuações de um vetor de strings.
+  # Parâmetros:
+  # str - vetor de strings que terão seus acentos retirados.
+  # patterns - vetor de strings com um ou mais elementos indicando quais acentos deverão ser retirados.
+  #            Para indicar quais acentos deverão ser retirados, um vetor com os símbolos deverão ser passados.
+  #            Exemplo: pattern = c("´", "^") retirará os acentos agudos e circunflexos apenas.
+  #            Outras palavras aceitas: "all" (retira todos os acentos, que são "´", "`", "^", "~", "¨", "ç")
+  if(!is.character(str))
+    str <- as.character(str)
+  
+  pattern <- unique(pattern)
+  
+  if(any(pattern=="Ç"))
+    pattern[pattern=="Ç"] <- "ç"
+  
+  symbols <- c(
+    acute = "áéíóúÁÉÍÓÚýÝ",
+    grave = "àèìòùÀÈÌÒÙ",
+    circunflex = "âêîôûÂÊÎÔÛ",
+    tilde = "ãõÃÕñÑ",
+    umlaut = "äëïöüÄËÏÖÜÿ",
+    cedil = "çÇ"
+  )
+  
+  nudeSymbols <- c(
+    acute = "aeiouAEIOUyY",
+    grave = "aeiouAEIOU",
+    circunflex = "aeiouAEIOU",
+    tilde = "aoAOnN",
+    umlaut = "aeiouAEIOUy",
+    cedil = "cC"
+  )
+  
+  accentTypes <- c("´","`","^","~","¨","ç")
+  
+  if(any(c("all","al","a","todos","t","to","tod","todo")%in%pattern)) # opcao retirar todos
+    return(chartr(paste(symbols, collapse=""), paste(nudeSymbols, collapse=""), str))
+  
+  for(i in which(accentTypes%in%pattern))
+    str <- chartr(symbols[i],nudeSymbols[i], str)
+  
+  return(str)
+}
+
+listaRegioes <- function(dados) {
+  lista <- c()
+  
+  for(i in dados$Serviço){
+    if (i %in% lista == F){
+      #print(i %in% lista)
+      lista <- c(lista, i)
+    } 
+  }
+  return(lista)
+}
+
+#Library e funções - END
+```
+
+```{r}
+#Leitura e Tratamento de dados - BEGIN
+
+#gs gs_gap_url("https://docs.google.com/spreadsheets/d/10_Gn2GZUTSgygFzwUDz91Tk_weeJuoR03oq95dQ3Dzo/pub?output=csv")
+#dados <- read.csv("https://docs.google.com/spreadsheets/d/10_Gn2GZUTSgygFzwUDz91Tk_weeJuoR03oq95dQ3Dzo/pub?output=csv", encoding="UTF-8") %>% as.data.frame(., stringsAsFactors=F) %>% .[-1,]
+
+gs_auth()
+gs <- gs_key("10_Gn2GZUTSgygFzwUDz91Tk_weeJuoR03oq95dQ3Dzo")
+dados <- gs_read_csv(gs, ws = 1) %>% as.data.frame(., stringsAsFactors=F) %>% .[-1,]
+
+#setwd("C:/Users/x16475588/Desktop/demanda/")
+#dados <- fread('perfil_jovens.csv', encoding="UTF-8") %>% 
+#  as.data.frame(., stringsAsFactors=F) %>% .[-1,]
+
+
+#Nomes
+dados[,4][dados[,4] == 'GISLENE MARIA DAMASCENO.'] = 'GISLENE MARIA DAMASCENO'
+dados[,4][dados[,4] == 'MAORCOS DINIZETTI DA SILVA'] = 'MARCOS DONIZETTI DA SILVA'
+dados[,4][dados[,4] == 'MARCOS DONIZETT DA SILVA'] = 'MARCOS DONIZETTI DA SILVA'
+dados[,4][dados[,4] == 'ANA PAULADE CASTRO DA CRUZ'] = 'ANA PAULA DE CASTRO DA CRUZ'
+dados[,4][dados[,4] == 'PAULANERES'] = 'PAULA NERES' 
+dados[,4][dados[,4] == 'ANA CLAUDIA ASSIS'] = 'ANA CLAUDIA DE ASSIS' 
+
+dados[,4][dados[,4] == 'AMANDA STEFANY DE SENA'] = 'JOELDSON DE JESUS SILVA' #Verificado no BD no campo e-mail
+
+dados[,4][dados[,4] == 'CAROLINE OLIVERIRA'] = 'CAROLINE OLIVEIRA'
+dados[,4][dados[,4] == 'CYNTHIA DA SILVA BORGES'] = 'CYNTHIA ROBERTA DA SILVA BORGES'
+dados[,4][dados[,4] == 'CYNTHIA BORGES'] = 'CYNTHIA ROBERTA DA SILVA BORGES'
+dados[,4][dados[,4] == 'CYNTHIA'] = 'CYNTHIA ROBERTA DA SILVA BORGES'
+
+dados[,4][dados[,4] == 'CYNTHIA  DA SILVA BORGES'] = 'CYNTHIA ROBERTA DA SILVA BORGES'
+
+dados[,4][dados[,4] == 'FLAVIA VILELA'] = 'FLAVIA VIVELA'
+dados[,4][dados[,4] == 'GABRIELA OLIVEIRA'] = 'GABRIELA DE OLIVEIRA PERACINI'
+dados[,4][dados[,4] == 'GABRIELA OLIVEIRA PERACINI'] = 'GABRIELA DE OLIVEIRA PERACINI'
+dados[,4][dados[,4] == 'GABRIELA OLIVEIRA PIRACINI'] = 'GABRIELA DE OLIVEIRA PERACINI'
+dados[,4][dados[,4] == 'GABRIELA PERACINI'] = 'GABRIELA DE OLIVEIRA PERACINI'
+dados[,4][dados[,4] == 'GABRIELA'] = 'GABRIELA DE OLIVEIRA PERACINI'
+dados[,4][dados[,4] == 'GENISE MACHADO DE C. BEIRIGO'] = 'GENISE MACHADO DE CARVALHO BEIRIGO'
+dados[,4][dados[,4] == 'ISABELLA L,M, SILVEIRA'] = 'ISABELLA L. M. SILVEIRA'
+dados[,4][dados[,4] == 'ISABELLA L.M. SILVEIRA'] = 'ISABELLA L. M. SILVEIRA'
+dados[,4][dados[,4] == 'JESSICA C. BARBOSA'] = 'JÉSSICA CAROLLINE BARBOSA'
+dados[,4][dados[,4] == 'JÉSSICA EDUANIA FRANCISCA ARLA'] = 'JÉSSICA EDUANIA FRANCISCO ARLAR'
+dados[,4][dados[,4] == 'KARINA S. ANDRADE'] = 'KARINA SILVA DE ANDRADE'
+dados[,4][dados[,4] == 'LUCIENE BATISTA GODINHO'] = 'LUCIENE BATISTA GODINHO'
+dados[,4][dados[,4] == 'PALOMA RESENDE'] = 'PALOMA RESENDE SILVA LIMA'
+dados[,4][dados[,4] == 'PALOMA REZENDE SILVA LIMA'] = 'PALOMA RESENDE SILVA LIMA'
+dados[,4][dados[,4] == 'PATRÍCIA DE O. RESENDE'] = 'PATRÍCIA DE OLIVEIRA RESENDE'
+dados[,4][dados[,4] == 'VANESA ROMUALDO DE OLIVEIRA'] = 'VANESSA ROMUALDO DE OLIVEIRA'
+
+#Mobilizador
+dados[3][dados[3] == 'Consultor Empreendedorismo 4 - Betim / Jardim Teresópolis e Citrolândia e Santa Isabel'] = 'Mobilizador Social 4 - Betim / Jardim Teresópolis'
+dados[3][dados[3] == 'Consultor Emprego 4  - Betim / Jardim Teresópolis e Citrolândia e Santa Isabel'] = 'Mobilizador Social 4 - Betim / Jardim Teresópolis'
+#Correções de mal preenchimento - END
+
+
+regioes <- listaRegioes(dados)
+
+
+
+if (selecao == 999){
+  #Seleciona geral de BH
+  dados <- subset(dados, dados$Serviço !='Mobilizador Social 10 - Passos / Novo Horizonte')
+} else{
+  #Usar abaixo para selecionar mobilizadores
+  dados <- subset(dados, dados$Serviço == regioes[selecao] )
+}
+
+
+dados[,4] %<>% toupper
+#Leitura e Tratamento de dados - END
+```
+
+
+```{r, echo=FALSE, include=FALSE}
+#Manipulação de BD - BEGIN
+dados$servico = dados$Serviço
+dados = dados %>% separate(servico, c('parte1','regiao'), ' / ')
+
+dados$regiao %>% freq(., plot=F)
+dados2 = dados %>% separate(regiao, c('r1','r2','r3'), ' e ')
+regioes_desag = c(dados2$r1, dados2$r2, dados2$r3)
+locais = freq(regioes_desag, plot=F) %>% as.data.frame(., stringsAsFactors=F) %>%
+  .[-c(nrow(.), nrow(.)-1),]
+#Manipulação de BD - END
+```
+
+```{r}
+tabela = freq(dados[,4], plot=F) %>% as.data.frame(., stringsAsFactors=F)
+tabela$pertotal = (tabela[,1] * 100) / 50
+tabela = mutate(tabela,
+                pertotal2 = pertotal %>% as.character %>% paste0(., '%'),
+                nomes = rownames(tabela))
+names(tabela) = c('Frequência','Percentual','Percentual do total',
+                  'Percentual do total (50)', 'Nome do Consultor')
+
+datatable(tabela[-nrow(tabela),c(5,1)])
+```
+
+### Fluxo das aplicações
+
+```{r, warning=FALSE, fig.width=9, fig.height=6}
+datas = dados[,1] %>% dmy_hms %>% as_date %>%
+  table %>% as.data.frame(., stringsAsFactors=F)
+
+limits = c("2017-03-15", as.character(Sys.Date())) %>% ymd %>% as_date
+names(datas) = c('Data','Questionarios')
+datas$Data %<>% as_date
+
+g = ggplot(datas, aes(x=Data, y=Questionarios))+geom_line(lwd=1)+
+  scale_x_date(date_minor_breaks = '1 week', date_breaks = '1 week',
+               date_labels = '%d/%m', limits = limits)+
+  labs(x='Data de lançamento',y='Número de questionários')
+
+ggplotly(g)
+```
+
+
+
+## Idade dos jovens entrevistados
+
+```{r, fig.width=9, fig.height=6}
+names(dados2)[3] <- "servico"
+names(dados2)[14] <- "idade"
+names(dados2)[16] <- "genero"
+names(dados2)[15] <- "cor"
+names(dados2)[10] <- "bairro"
+
+g2 <- ggplot(dados2, aes(dados2$idade))+geom_histogram(fill='#ffd42a', bins = 10)+labs(y="", x="Idade", title="Histogramas")+facet_wrap(~parte1)
+g2
+```
+
+```{r, message=F, warning=FALSE,echo=FALSE}
+freqIdade<-freq(dados2$idade, plot = F) %>% as.data.frame()
+datatable(freqIdade)
+```
+
+
+## Cor
+
+```{r, message=F, warning=F, fig.height=6, fig.width=9}
+dados2$cor[dados2$cor == ""] = "Não sei/não quero responder"
+g3 <- ggplot(dados2, aes(x=cor))+geom_bar(fill='#ffd42a')+labs(y="", x="Cor", title="")+facet_wrap(~parte1)+theme(axis.text.x = element_text(angle = 45, hjust = 1, vjust=1))
+g3
+```
+
+```{r, message=F, warning=FALSE,echo=FALSE}
+freqCor<-freq(dados2$cor, plot = F) %>% as.data.frame()
+datatable(freqCor)
+```
+
+## Gênero
+
+```{r, message=F, warning=FALSE,echo=FALSE}
+##### Fazendo strsplit
+#dados3 <- dados2 %>% separate(col=servico, into=c("Mobilizador","Região"), 
+#                    sep = " - ") %>% .[,3]
+
+# Gerando sem copiar o data.frame
+#tabela = table(dados2 %>% separate(col=servico, into=c("Mobilizador","Região"), 
+#                    sep = " - ") %>% .[,3],
+#               dados2$genero)
+
+
+######
+tabela = table(dados2$servico, dados2$genero) %>% as.data.frame(., stringsAsFactors=F)
+tabela = dcast(tabela, Var1~Var2)
+#tabela = tabela[,-1]
+
+if(is.null(tabela$Var.2)){
+  names(tabela)[1] <- c("Mobilizador")
+} else{
+  names(tabela)[1:2] <- c("Mobilizador", "Não declarado")
+}
+#Quando nao tem 'Nao declarados'
+
+#Quando tem coluna de 'Nao declarados' usar
+#names(tabela)[1:2] <- c("Mobilizador", "Não declarado")
+
+#knitr::kable(tabela)
+datatable(tabela)
+```
+
+## Estado Civil
+
+```{r, message=F, warning=F, fig.width=9, fig.height=6}
+#freq(dados2[,17])
+names(dados2)[17] <- "estado.civil"
+dados2$estado.civil[dados2$estado.civil == "Amigavel"] = "Amigável"
+dados2$estado.civil[dados2$estado.civil == "Amigável"] = "Relacionamento Estável"
+dados2$estado.civil[dados2$estado.civil == "Relacionamento serio"] = "Relacionamento Estável"
+dados2$estado.civil[dados2$estado.civil == "noivo"] = "Relacionamento Estável"
+dados2$estado.civil[dados2$estado.civil == ""] = "Não declarado"
+
+ggplot(dados2, aes(x=estado.civil))+geom_bar(fill='#ffd42a')+labs(y="", x="Estado Civil", title="")+facet_wrap(~parte1)+
+  theme(axis.text.x = element_text(angle = 45, hjust = 1, vjust=1))
+```
+
+```{r, message=F, warning=FALSE,echo=FALSE}
+freqEstadoCivil<-freq(dados2$`1.9 | Estado Civil`, plot = F) %>% as.data.frame()
+freqEstadoCivil
+datatable(freqEstadoCivil)
+```
+
+## Religião
+
+```{r, message=F, warning=FALSE, fig.width=9, fig.height=6}
+names(dados2)[18] <- "religiao"
+dados2$religiao[dados2$religiao == ""] <- "Não declarado"
+#freq(dados2$religiao)
+ggplot(dados2, aes(x=religiao))+geom_bar(fill='#ffd42a')+labs(y="", x="Religião", title="")+facet_wrap(~parte1)+theme(axis.text.x = element_text(angle = 45, hjust = 1, vjust=1))
+```
+
+```{r, message=F, warning=FALSE,echo=FALSE}
+freqReligiao<-freq(dados2$`1.10 | Religião`, plot = F) %>% as.data.frame()
+#freqIdade
+datatable(freqReligiao)
+```
+
+<hr>
+  
+  ## Possui acesso à internet em casa?
+  
+```{r, message=F, warning=F, fig.height=6, fig.width=9}
+#freq(dados2[,22])
+names(dados2)[22:23] <- c("internet.casa","internet.cel")
+ggplot(dados2, aes(x=internet.casa))+geom_bar(fill='#ffd42a')+labs(y="", x="", title="")+facet_wrap(~parte1)
+```
+
+```{r, message=F, warning=FALSE,echo=FALSE}
+freqInternetCasa<-freq(dados2$`1.14 | Você tem acesso a internet em sua casa?`, plot = F) %>% as.data.frame()
+#freqIdade
+datatable(freqInternetCasa)
+```
+
+## Possui acesso à internet no celular?
+
+```{r, message=F, warning=F, fig.height=6, fig.width=9}
+#freq(dados2[,22])
+names(dados2)[22:23] <- c("internet.casa","internet.cel")
+ggplot(dados2, aes(x=internet.cel))+geom_bar(fill='#ffd42a')+labs(y="", x="", title="")+facet_wrap(~parte1)
+```
+
+```{r, message=F, warning=FALSE,echo=FALSE}
+freqInternetCelular<-freq(dados2$`1.15 | Você tem acesso a internet pelo celular?`, plot = F) %>% as.data.frame()
+#freqIdade
+datatable(freqInternetCelular)
+```
+
+# Família
+
+## Quantos filhos?
+
+```{r, message=F, warning=F, fig.width=9, fig.height=6}
+#freq(dados2[,30])
+names(dados2)[30] <- "tem.filhos"
+ggplot(dados2, aes(x=tem.filhos))+geom_bar(fill='#ffd42a')+labs(y="", x="", title="")+facet_wrap(~parte1)
+```
+
+```{r, message=F, warning=FALSE,echo=FALSE}
+freqFilhos<-freq(dados2$`2.3 | Você tem filhos?`, plot = F) %>% as.data.frame()
+#freqIdade
+datatable(freqFilhos)
+```
+
+## Quantas pessoas moram na sua casa?
+
+```{r, message=F, warning=F, fig.width=9, fig.height=6}
+#freq(dados2[,32])
+names(dados2)[32] <- "qtd_pes_casa"
+ggplot(dados2, aes(x=qtd_pes_casa))+geom_bar(fill='#ffd42a')+labs(y="", x="", title="")+facet_wrap(~parte1)
+```
+
+```{r, message=F, warning=FALSE,echo=FALSE}
+freqCasa<-freq(dados2$`2.5 | Quantas pessoas moram em sua casa?`, plot = F) %>% as.data.frame()
+#freqIdade
+datatable(freqCasa)
+```
+
+## Chefes de família
+
+```{r, message=F, warning=F, fig.width=9, fig.height=6}
+names(dados2)[33] <- "chefe.familia"
+ggplot(dados2, aes(x=chefe.familia))+geom_bar(fill='#ffd42a')+labs(y="", x="", title="Você é chefe de família")+facet_wrap(~parte1)
+```
+
+```{r, message=F, warning=FALSE,echo=FALSE}
+freqChefesFamilia<-freq(dados2$`2.6 | Você é chefe de família?`, plot = F) %>% as.data.frame()
+#freqIdade
+datatable(freqChefesFamilia)
+```
+
+```{r, message=F, warning=F, fig.width=9, fig.height=6}
+# Idades dos chefes de família
+ggplot(dados2[dados2$chefe.familia == "Sim",], aes(y=idade, x=1))+geom_boxplot(fill='#ffd42a')+facet_wrap(~parte1)+labs(title="Idade dos chefes de família", x="", y="Idade")+theme(axis.text.y = element_blank(), axis.ticks.y =  element_blank())+coord_flip()
+```
+
+```{r, message=F, warning=F, fig.width=9, fig.height=6}
+# Gênero dos chefes de família
+#freq(dados2$genero)
+ggplot(dados2[dados2$chefe.familia == "Sim",], aes(x=genero))+geom_bar(fill='#ffd42a')+labs(y="", x="", title="Chefes de Família - Gênero")+facet_wrap(~parte1)+scale_x_discrete(labels=c("Feminino","Masculino","Não binário"))
+```
+
+# Educação
+
+## Frequenta a escola?
+
+```{r, message=F, warning=F, fig.width=9, fig.height=6}
+names(dados2)[40] <- "freq.escola"
+ggplot(dados2, aes(freq.escola))+geom_bar(fill='#ffd42a')+labs(y="", x="", title="")+facet_wrap(~parte1)
+```
+
+```{r, message=F, warning=FALSE,echo=FALSE}
+freqEscola<-freq(dados2$`4.2 | Frequenta a escola?`, plot = F) %>% as.data.frame()
+#freqIdade
+datatable(freqEscola)
+```
+
+## Com que idade parou de estudar
+
+```{r, message=F, warning=F, fig.width=9, fig.height=6}
+dados2$`4.2.1 | Se não, com qual idade parou de estudar?`[dados2$`4.2.1 | Se não, com qual idade parou de estudar?` == 0] = NA
+summary(dados2[,41])
+ggplot(dados2, aes(y=dados2[,41],x=1))+geom_boxplot(fill='#ffd42a')+facet_wrap(~parte1)+labs(title="Com que idade parou de estudar?", x="", y="Idade")+theme(axis.text.y = element_blank(), axis.ticks.y =  element_blank())+coord_flip()
+```
+
+## Porque parou de estudar?
+
+```{r, message=F, warning=F, fig.width=7, fig.height=7}
+text <- dados[,42] %>% tolower %>% removePunctuation %>% removeWords(stopwords('pt')) %>%
+  removeWords(c("ensino","médio","medio","formei","conclusão","conclui","concluí","concluiu","porque","formou","fomei"))
+pal <- brewer.pal(9,"Reds")
+pal <- pal[-(1:4)]
+wordcloud(enc2native(text), min.freq = 1, random.order = F, colors = pal, max.words = 100)
+```
+
+## Já parou de estudar e despois voltou?
+
+```{r, message=F, warning=F, fig.width=9, fig.height=6}
+names(dados2)[45] <- "parou.voltou"
+ggplot(dados2, aes(parou.voltou))+geom_bar(fill='#ffd42a')+labs(y="", x="", title="")+facet_wrap(~parte1)
+```
+
+# Orientação profissional
+
+## Participou de atividades de orientação para o trabalho?
+
+```{r, message=F, warning=F, fig.width=9, fig.height=6}
+names(dados2)[46] <- "orientacao.trab"
+ggplot(dados2, aes(orientacao.trab))+geom_bar(fill='#ffd42a')+labs(y="", x="", title="")+facet_wrap(~parte1)
+```
+
+## Já trabalhou em função em que se qualificou?
+
+```{r, message=F, warning=F, fig.width=9, fig.height=6}
+names(dados2)[51] <- "trab.fun.qual"
+ggplot(dados2, aes(trab.fun.qual))+geom_bar(fill='#ffd42a')+labs(y="", x="", title="")+facet_wrap(~parte1)
+```
+
+É relevante investigar aqui quais funções de qualificação tem sucesso na obtenção de emprego e quais não tem.
+
+# Perspectiva sobre o trabalho
+
+## Quais as principais dificuldades que você enfrentou em seus trabalhos anteriores?
+
+```{r, message=F, warning=F, fig.width=7, fig.height=7}
+text <- dados[,71] %>% tolower %>% removePunctuation %>% removeWords(stopwords('pt')) %>% removeWords(c("nenhuma","nenhum"))
+pal <- brewer.pal(9,"Reds")
+pal <- pal[-(1:4)]
+wordcloud(enc2native(text), min.freq = 1, random.order = F, colors = pal, max.words = 100)
+```
+
+## Em que função está trabalhando?
+
+```{r, message=F, warning=F, fig.width=9, fig.height=6}
+text.m <- dados[,74][dados2$genero == "Masculino"] %>% tolower %>% removePunctuation %>% removeWords(stopwords('pt')) #%>% removeWords(c("nenhuma","nenhum"))
+text.f <- dados[,74][dados2$genero == "Feminino"] %>% tolower %>% removePunctuation %>% removeWords(stopwords('pt')) #%>% removeWords(c("nenhuma","nenhum"))
+
+pal <- brewer.pal(9,"Reds")
+pal <- pal[-(1:4)]
+
+par(mfrow=c(1,2))
+wordcloud(enc2native(text.m), min.freq = 1, random.order = F, colors = pal, max.words = 100); title(main = "Homens")
+wordcloud(enc2native(text.f), min.freq = 1, random.order = F, colors = pal, max.words = 100); title(main = "Mulheres")
+par(mfrow=c(1,1))
+```
+
+## Ja se sentiu discriminado no trabalho ou na busca por emprego?
+
+```{r, message=F, warning=F, fig.width=9, fig.height=6}
+names(dados2)[75] <- "discriminado"
+ggplot(dados2, aes(discriminado))+geom_bar(fill='#ffd42a')+labs(y="", x="", title="")+facet_wrap(~parte1)
+```
+
+## Por quê?
+
+```{r, message=F, warning=F, fig.width=7, fig.height=7}
+text <- dados[,76] %>% tolower %>% removePunctuation %>% removeWords(stopwords('pt')) %>% removeWords(c("causa","porque"))
+pal <- brewer.pal(9,"Reds")
+pal <- pal[-(1:4)]
+wordcloud(enc2native(text), min.freq = 1, random.order = F, colors = pal, max.words = 100)
+```
+
+
+
