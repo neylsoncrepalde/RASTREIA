@@ -300,7 +300,7 @@ datatable(freqCor)
 
 ## Gênero
 
-```{r, message=F, warning=FALSE,echo=FALSE}
+```{r, message=F, warning=FALSE}
 ##### Fazendo strsplit
 #dados3 <- dados2 %>% separate(col=servico, into=c("Mobilizador","Região"), 
 #                    sep = " - ") %>% .[,3]
@@ -315,19 +315,8 @@ datatable(freqCor)
 tabela = table(dados2$servico, dados2$genero) %>% as.data.frame(., stringsAsFactors=F)
 tabela = dcast(tabela, Var1~Var2)
 #tabela = tabela[,-1]
-
-if(is.null(tabela$Var.2)){
-  names(tabela)[1] <- c("Mobilizador")
-} else{
-  names(tabela)[1:2] <- c("Mobilizador", "Não declarado")
-}
-#Quando nao tem 'Nao declarados'
-
-#Quando tem coluna de 'Nao declarados' usar
-#names(tabela)[1:2] <- c("Mobilizador", "Não declarado")
-
-#knitr::kable(tabela)
-datatable(tabela)
+names(tabela)[1:2] <- c("Mobilizador","Não declarado")
+knitr::kable(tabela)
 ```
 
 ## Estado Civil
@@ -346,8 +335,8 @@ ggplot(dados2, aes(x=estado.civil))+geom_bar(fill='#ffd42a')+labs(y="", x="Estad
 ```
 
 ```{r, message=F, warning=FALSE,echo=FALSE}
-freqEstadoCivil<-freq(dados2$`1.9 | Estado Civil`, plot = F) %>% as.data.frame()
-freqEstadoCivil
+freqEstadoCivil<-freq(dados2$estado.civil, plot = F) %>% as.data.frame()
+#freqEstadoCivil
 datatable(freqEstadoCivil)
 ```
 
@@ -361,15 +350,12 @@ ggplot(dados2, aes(x=religiao))+geom_bar(fill='#ffd42a')+labs(y="", x="Religião
 ```
 
 ```{r, message=F, warning=FALSE,echo=FALSE}
-freqReligiao<-freq(dados2$`1.10 | Religião`, plot = F) %>% as.data.frame()
-#freqIdade
+freqReligiao<-freq(dados2$religiao, plot = F) %>% as.data.frame()
 datatable(freqReligiao)
 ```
 
-<hr>
-  
-  ## Possui acesso à internet em casa?
-  
+## Possui acesso à internet em casa?
+
 ```{r, message=F, warning=F, fig.height=6, fig.width=9}
 #freq(dados2[,22])
 names(dados2)[22:23] <- c("internet.casa","internet.cel")
@@ -377,7 +363,7 @@ ggplot(dados2, aes(x=internet.casa))+geom_bar(fill='#ffd42a')+labs(y="", x="", t
 ```
 
 ```{r, message=F, warning=FALSE,echo=FALSE}
-freqInternetCasa<-freq(dados2$`1.14 | Você tem acesso a internet em sua casa?`, plot = F) %>% as.data.frame()
+freqInternetCasa<-freq(dados2$internet.casa, plot = F) %>% as.data.frame()
 #freqIdade
 datatable(freqInternetCasa)
 ```
@@ -391,7 +377,7 @@ ggplot(dados2, aes(x=internet.cel))+geom_bar(fill='#ffd42a')+labs(y="", x="", ti
 ```
 
 ```{r, message=F, warning=FALSE,echo=FALSE}
-freqInternetCelular<-freq(dados2$`1.15 | Você tem acesso a internet pelo celular?`, plot = F) %>% as.data.frame()
+freqInternetCelular<-freq(dados2$internet.cel, plot = F) %>% as.data.frame()
 #freqIdade
 datatable(freqInternetCelular)
 ```
@@ -407,7 +393,7 @@ ggplot(dados2, aes(x=tem.filhos))+geom_bar(fill='#ffd42a')+labs(y="", x="", titl
 ```
 
 ```{r, message=F, warning=FALSE,echo=FALSE}
-freqFilhos<-freq(dados2$`2.3 | Você tem filhos?`, plot = F) %>% as.data.frame()
+freqFilhos<-freq(dados2$tem.filhos, plot = F) %>% as.data.frame()
 #freqIdade
 datatable(freqFilhos)
 ```
@@ -421,7 +407,7 @@ ggplot(dados2, aes(x=qtd_pes_casa))+geom_bar(fill='#ffd42a')+labs(y="", x="", ti
 ```
 
 ```{r, message=F, warning=FALSE,echo=FALSE}
-freqCasa<-freq(dados2$`2.5 | Quantas pessoas moram em sua casa?`, plot = F) %>% as.data.frame()
+freqCasa<-freq(dados2$qtd_pes_casa, plot = F) %>% as.data.frame()
 #freqIdade
 datatable(freqCasa)
 ```
@@ -434,7 +420,7 @@ ggplot(dados2, aes(x=chefe.familia))+geom_bar(fill='#ffd42a')+labs(y="", x="", t
 ```
 
 ```{r, message=F, warning=FALSE,echo=FALSE}
-freqChefesFamilia<-freq(dados2$`2.6 | Você é chefe de família?`, plot = F) %>% as.data.frame()
+freqChefesFamilia<-freq(dados2$chefe.familia, plot = F) %>% as.data.frame()
 #freqIdade
 datatable(freqChefesFamilia)
 ```
@@ -445,9 +431,22 @@ ggplot(dados2[dados2$chefe.familia == "Sim",], aes(y=idade, x=1))+geom_boxplot(f
 ```
 
 ```{r, message=F, warning=F, fig.width=9, fig.height=6}
+#Idade dos chefes de família
+summary(dados2$idade[dados2$chefe.familia == "Sim"])
+```
+
+
+```{r, message=F, warning=F, fig.width=9, fig.height=6}
 # Gênero dos chefes de família
 #freq(dados2$genero)
 ggplot(dados2[dados2$chefe.familia == "Sim",], aes(x=genero))+geom_bar(fill='#ffd42a')+labs(y="", x="", title="Chefes de Família - Gênero")+facet_wrap(~parte1)+scale_x_discrete(labels=c("Feminino","Masculino","Não binário"))
+```
+
+```{r, message=F, warning=FALSE,echo=FALSE}
+#Gênero dos chefes de família
+freqGenChefesFamilia<-freq(dados2$genero[dados2$chefe.familia=="Sim"], plot = F) %>% as.data.frame()
+#freqIdade
+datatable(freqGenChefesFamilia)
 ```
 
 # Educação
@@ -460,7 +459,7 @@ ggplot(dados2, aes(freq.escola))+geom_bar(fill='#ffd42a')+labs(y="", x="", title
 ```
 
 ```{r, message=F, warning=FALSE,echo=FALSE}
-freqEscola<-freq(dados2$`4.2 | Frequenta a escola?`, plot = F) %>% as.data.frame()
+freqEscola<-freq(dados2$freq.escola, plot = F) %>% as.data.frame()
 #freqIdade
 datatable(freqEscola)
 ```
@@ -469,9 +468,14 @@ datatable(freqEscola)
 
 ```{r, message=F, warning=F, fig.width=9, fig.height=6}
 dados2$`4.2.1 | Se não, com qual idade parou de estudar?`[dados2$`4.2.1 | Se não, com qual idade parou de estudar?` == 0] = NA
-summary(dados2[,41])
 ggplot(dados2, aes(y=dados2[,41],x=1))+geom_boxplot(fill='#ffd42a')+facet_wrap(~parte1)+labs(title="Com que idade parou de estudar?", x="", y="Idade")+theme(axis.text.y = element_blank(), axis.ticks.y =  element_blank())+coord_flip()
 ```
+
+```{r, message=F, warning=F, fig.width=7, fig.height=7}
+#Descritivas: com que idade parou de estudar
+summary(dados2[,41])
+```
+
 
 ## Porque parou de estudar?
 
@@ -490,6 +494,12 @@ names(dados2)[45] <- "parou.voltou"
 ggplot(dados2, aes(parou.voltou))+geom_bar(fill='#ffd42a')+labs(y="", x="", title="")+facet_wrap(~parte1)
 ```
 
+```{r, message=F, warning=FALSE,echo=FALSE}
+freqParouVoltou<-freq(dados2$parou.voltou, plot = F) %>% as.data.frame()
+#freqIdade
+datatable(freqParouVoltou)
+```
+
 # Orientação profissional
 
 ## Participou de atividades de orientação para o trabalho?
@@ -499,11 +509,23 @@ names(dados2)[46] <- "orientacao.trab"
 ggplot(dados2, aes(orientacao.trab))+geom_bar(fill='#ffd42a')+labs(y="", x="", title="")+facet_wrap(~parte1)
 ```
 
+```{r, message=F, warning=FALSE,echo=FALSE}
+freqOrientacaoTrab<-freq(dados2$orientacao.trab, plot = F) %>% as.data.frame()
+#freqIdade
+datatable(freqOrientacaoTrab)
+```
+
 ## Já trabalhou em função em que se qualificou?
 
 ```{r, message=F, warning=F, fig.width=9, fig.height=6}
 names(dados2)[51] <- "trab.fun.qual"
 ggplot(dados2, aes(trab.fun.qual))+geom_bar(fill='#ffd42a')+labs(y="", x="", title="")+facet_wrap(~parte1)
+```
+
+```{r, message=F, warning=FALSE,echo=FALSE}
+freqTrabFun<-freq(dados2$trab.fun.qual, plot = F) %>% as.data.frame()
+#freqIdade
+datatable(freqTrabFun)
 ```
 
 É relevante investigar aqui quais funções de qualificação tem sucesso na obtenção de emprego e quais não tem.
@@ -541,6 +563,12 @@ names(dados2)[75] <- "discriminado"
 ggplot(dados2, aes(discriminado))+geom_bar(fill='#ffd42a')+labs(y="", x="", title="")+facet_wrap(~parte1)
 ```
 
+```{r, message=F, warning=FALSE,echo=FALSE}
+freqDiscriminado<-freq(dados2$discriminado, plot = F) %>% as.data.frame()
+#freqIdade
+datatable(freqDiscriminado)
+```
+
 ## Por quê?
 
 ```{r, message=F, warning=F, fig.width=7, fig.height=7}
@@ -549,6 +577,7 @@ pal <- brewer.pal(9,"Reds")
 pal <- pal[-(1:4)]
 wordcloud(enc2native(text), min.freq = 1, random.order = F, colors = pal, max.words = 100)
 ```
+
 
 
 
