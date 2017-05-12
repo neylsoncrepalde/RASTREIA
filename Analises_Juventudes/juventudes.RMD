@@ -274,16 +274,14 @@ names(dados2)[14] <- "idade"
 names(dados2)[16] <- "genero"
 names(dados2)[15] <- "cor"
 names(dados2)[10] <- "bairro"
-
-g2 <- ggplot(dados2, aes(dados2$idade))+geom_histogram(fill='#ffd42a', bins = 10)+labs(y="", x="Idade", title="Histogramas")+facet_wrap(~parte1)
+g2 <- ggplot(dados2, aes(x=idade))+geom_histogram(fill='#ffd42a', bins = 10)+labs(y="", x="Idade", title="Histogramas")+facet_wrap(~parte1)
 g2
 ```
 
 ```{r, message=F, warning=FALSE,echo=FALSE, results='asis'}
 freqIdade<-freq(dados2$idade, plot = F) %>% as.data.frame()
-print(freqIdade, digits = 2)
+knitr::kable(freqIdade, digits = 2)
 ```
-
 
 ## Cor
 
@@ -295,7 +293,7 @@ g3
 
 ```{r, message=F, warning=FALSE,echo=FALSE}
 freqCor<-freq(dados2$cor, plot = F) %>% as.data.frame()
-print(freqCor, digits = 2)
+knitr::kable(freqCor, digits = 2)
 ```
 
 ## Gênero
@@ -343,7 +341,7 @@ ggplot(dados2, aes(x=estado.civil))+geom_bar(fill='#ffd42a')+labs(y="", x="Estad
 ```{r, message=F, warning=FALSE,echo=FALSE}
 freqEstadoCivil<-freq(dados2$estado.civil, plot = F) %>% as.data.frame()
 #freqEstadoCivil
-print(freqEstadoCivil, digits = 2)
+knitr::kable(freqEstadoCivil, digits = 2)
 ```
 
 ## Religião
@@ -357,7 +355,7 @@ ggplot(dados2, aes(x=religiao))+geom_bar(fill='#ffd42a')+labs(y="", x="Religião
 
 ```{r, message=F, warning=FALSE,echo=FALSE}
 freqReligiao<-freq(dados2$religiao, plot = F) %>% as.data.frame()
-print(freqReligiao, , digits = 2)
+knitr::kable(freqReligiao, , digits = 2)
 ```
 
 ## Possui acesso à internet em casa?
@@ -371,7 +369,7 @@ ggplot(dados2, aes(x=internet.casa))+geom_bar(fill='#ffd42a')+labs(y="", x="", t
 ```{r, message=F, warning=FALSE,echo=FALSE}
 freqInternetCasa<-freq(dados2$internet.casa, plot = F) %>% as.data.frame()
 #freqIdade
-print(freqInternetCasa, digits = 2)
+knitr::kable(freqInternetCasa, digits = 2)
 ```
 
 ## Possui acesso à internet no celular?
@@ -385,7 +383,7 @@ ggplot(dados2, aes(x=internet.cel))+geom_bar(fill='#ffd42a')+labs(y="", x="", ti
 ```{r, message=F, warning=FALSE,echo=FALSE}
 freqInternetCelular<-freq(dados2$internet.cel, plot = F) %>% as.data.frame()
 #freqIdade
-print(freqInternetCelular, digits = 2)
+knitr::kable(freqInternetCelular, digits = 2)
 ```
 
 # Família
@@ -401,7 +399,7 @@ ggplot(dados2, aes(x=tem.filhos))+geom_bar(fill='#ffd42a')+labs(y="", x="", titl
 ```{r, message=F, warning=FALSE,echo=FALSE}
 freqFilhos<-freq(dados2$tem.filhos, plot = F) %>% as.data.frame()
 #freqIdade
-print(freqFilhos, digits = 2)
+knitr::kable(freqFilhos, digits = 2)
 ```
 
 ## Quantas pessoas moram na sua casa?
@@ -415,7 +413,7 @@ ggplot(dados2, aes(x=qtd_pes_casa))+geom_bar(fill='#ffd42a')+labs(y="", x="", ti
 ```{r, message=F, warning=FALSE,echo=FALSE}
 freqCasa<-freq(dados2$qtd_pes_casa, plot = F) %>% as.data.frame()
 #freqIdade
-print(freqCasa, digits = 2)
+knitr::kable(freqCasa, digits = 2)
 ```
 
 ## Chefes de família
@@ -428,7 +426,7 @@ ggplot(dados2, aes(x=chefe.familia))+geom_bar(fill='#ffd42a')+labs(y="", x="", t
 ```{r, message=F, warning=FALSE,echo=FALSE}
 freqChefesFamilia<-freq(dados2$chefe.familia, plot = F) %>% as.data.frame()
 #freqIdade
-print(freqChefesFamilia, digits = 2)
+knitr::kable(freqChefesFamilia, digits = 2)
 ```
 
 ###Idade dos chefes de família
@@ -455,7 +453,7 @@ ggplot(dados2[dados2$chefe.familia == "Sim",], aes(x=genero))+geom_bar(fill='#ff
 dados2$genero[dados2$genero == "Não Binário (pessoa que não se identifica nem com o gênero feminino nem com o masculino)"] = "Não Binário"
 freqGenChefesFamilia<-freq(dados2$genero[dados2$chefe.familia=="Sim"], plot = F) %>% as.data.frame()
 #freqIdade
-print(freqGenChefesFamilia, digits = 2)
+knitr::kable(freqGenChefesFamilia, digits = 2)
 ```
 
 # Educação
@@ -470,7 +468,7 @@ ggplot(dados2, aes(freq.escola))+geom_bar(fill='#ffd42a')+labs(y="", x="", title
 ```{r, message=F, warning=FALSE,echo=FALSE}
 freqEscola<-freq(dados2$freq.escola, plot = F) %>% as.data.frame()
 #freqIdade
-print(freqEscola, digits = 2)
+knitr::kable(freqEscola, digits = 2)
 ```
 
 ## Com que idade parou de estudar
@@ -506,7 +504,7 @@ ggplot(dados2, aes(parou.voltou))+geom_bar(fill='#ffd42a')+labs(y="", x="", titl
 ```{r, message=F, warning=FALSE,echo=FALSE}
 freqParouVoltou<-freq(dados2$parou.voltou, plot = F) %>% as.data.frame()
 #freqIdade
-print(freqParouVoltou, digits = 2)
+knitr::kable(freqParouVoltou, digits = 2)
 ```
 
 # Orientação profissional
@@ -521,7 +519,7 @@ ggplot(dados2, aes(orientacao.trab))+geom_bar(fill='#ffd42a')+labs(y="", x="", t
 ```{r, message=F, warning=FALSE,echo=FALSE}
 freqOrientacaoTrab<-freq(dados2$orientacao.trab, plot = F) %>% as.data.frame()
 #freqIdade
-print(freqOrientacaoTrab, digits = 2)
+knitr::kable(freqOrientacaoTrab, digits = 2)
 ```
 
 ## Já trabalhou em função em que se qualificou?
@@ -534,7 +532,7 @@ ggplot(dados2, aes(trab.fun.qual))+geom_bar(fill='#ffd42a')+labs(y="", x="", tit
 ```{r, message=F, warning=FALSE,echo=FALSE}
 freqTrabFun<-freq(dados2$trab.fun.qual, plot = F) %>% as.data.frame()
 #freqIdade
-print(freqTrabFun, digits = 2)
+knitr::kable(freqTrabFun, digits = 2)
 ```
 
 É relevante investigar aqui quais funções de qualificação tem sucesso na obtenção de emprego e quais não tem.
@@ -575,7 +573,7 @@ ggplot(dados2, aes(discriminado))+geom_bar(fill='#ffd42a')+labs(y="", x="", titl
 ```{r, message=F, warning=FALSE,echo=FALSE}
 freqDiscriminado<-freq(dados2$discriminado, plot = F) %>% as.data.frame()
 #freqIdade
-print(freqDiscriminado, digits = 2)
+knitr::kable(freqDiscriminado, digits = 2)
 ```
 
 ## Por quê?
