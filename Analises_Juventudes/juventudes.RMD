@@ -279,9 +279,9 @@ g2 <- ggplot(dados2, aes(dados2$idade))+geom_histogram(fill='#ffd42a', bins = 10
 g2
 ```
 
-```{r, message=F, warning=FALSE,echo=FALSE}
+```{r, message=F, warning=FALSE,echo=FALSE, results='asis'}
 freqIdade<-freq(dados2$idade, plot = F) %>% as.data.frame()
-datatable(freqIdade)
+print(freqIdade, digits = 2)
 ```
 
 
