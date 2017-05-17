@@ -211,7 +211,7 @@ for i in range(len(dados)):
 print(len(atendidos_2opcao))
 print(atendidos_2opcao)
 
-#Estabelecendo as vagas. COMPLETAR 
+#Estabelecendo as vagas.
 vagas_citrolandia = {'Prioritárias': {'Confeitaria':12,'Mecânico de Motocicletas':9,
                                  'Organização de Eventos':9,
                                  'Editor de projeto visual gráfico (Design Gráfico)':9,
