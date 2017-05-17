@@ -211,12 +211,52 @@ for i in range(len(dados)):
 print(len(atendidos_2opcao))
 print(atendidos_2opcao)
 
+#Estabelecendo as vagas. COMPLETAR 
+vagas_citrolandia = {'Prioritárias': {'Confeitaria':12,'Mecânico de Motocicletas':9,
+                                 'Organização de Eventos':9,
+                                 'Editor de projeto visual gráfico (Design Gráfico)':9,
+                                 'Analista de Redes Sociais / Mídias Digitais':9,
+                                 'Desenvolvedor de Aplicativos para Dispositivos Móveis':9,
+                                 'Assistente de Produção Cultural':9},
+                'Demanda Espontânea': {'Confeitaria':8,'Mecânico de Motocicletas':6,
+                                 'Organização de Eventos':6,
+                                 'Editor de projeto visual gráfico (Design Gráfico)':6,
+                                 'Analista de Redes Sociais / Mídias Digitais':6,
+                                 'Desenvolvedor de Aplicativos para Dispositivos Móveis':6,
+                                 'Assistente de Produção Cultural':6}
+                }
+vagas_jardim = {'Prioritárias': {'Confeitaria':24,'Mecânico de Motocicletas':15,
+                                 'Organização de Eventos':15,
+                                 'Editor de projeto visual gráfico (Design Gráfico)':15,
+                                 'Analista de Redes Sociais / Mídias Digitais':15,
+                                 'Desenvolvedor de Aplicativos para Dispositivos Móveis':15,
+                                 'Assistente de Produção Cultural':15},
+                'Demanda Espontânea': {'Confeitaria':16,'Mecânico de Motocicletas':10,
+                                 'Organização de Eventos':10,
+                                 'Editor de projeto visual gráfico (Design Gráfico)':10,
+                                 'Analista de Redes Sociais / Mídias Digitais':10,
+                                 'Desenvolvedor de Aplicativos para Dispositivos Móveis':10,
+                                 'Assistente de Produção Cultural':10}
+                }
 
+##############################################################################
+# Criando as regras de alocação
 
+dados['status'] = 'Não avaliado'
 
-
-
-
+for i in range(len(dados['status'])):
+    #Se for prioritário
+    if i < 85:
+        #faça estas coisas
+        print('Prioritário')
+    
+    #se for Demanda Espontânea
+    elif i >=85:
+        #faça estas outras coisas
+        print('Demanda Espontânea')
+        
+        
+dados['Enc - Segunda opção:'][:85]
 
 
 
