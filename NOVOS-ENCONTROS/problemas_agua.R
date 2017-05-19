@@ -72,11 +72,11 @@ names(copanor)[15] = c("Solução proposta")
 
 #SEDINOR
 ###############
-sedinor = read.csv2('problemas_agua_sedinor.csv',stringsAsFactors = F)
+sedinor = read.csv2('problemas_agua_sedinor_atual.csv',stringsAsFactors = F)
 View(sedinor)
 names(sedinor)[20:21] = c('Em operação? 1=sim, 0=não','Se não, porque? sem análise de água=1, água imprópria para consumo humano=2, tubulação não entregue=3, impossibiliader de caraterizar quantitativa e qualitativamente=4, Sem energização=5')
 names(sedinor)[26] = c("Solução proposta")
-sedinor %<>% .[1:219,]
+sedinor %<>% .[1:366,]
 ###############
 
 dados = rbind(copanor[,c(1:5,12:15)], sedinor[,c(1:5,19:21,26)], 
@@ -194,20 +194,27 @@ for (row in 1:nrow(porque_nao_opera)){
 }
 pno_corrigido %<>% na.omit
 
-tabela2 <- freq(pno_corrigido$V2, plot=F) %>% as.data.frame(., stringsAsFactors=F)
+prob.fund <- rbind(secir[,c(14,15)], sedinor[,c(14,15)], igam[,c(14,15)])
+prob.fund <- prob.fund[1:247,]
+prob.fund$Outorga.de.Uso..sim...1..não...0.
+#View(prob.fund)
+
+problemas <- c(pno_corrigido$V2, na.omit(prob.fund$Outorga.de.Uso..sim...1..não...0.))
+problemas %<>% as.factor
+levels(problemas) = c("Sem outorga de uso","Sem análise de água","Água imprópria para consumo humano",
+                             "Tubulação não entregue","Sem energização")
+
+tabela2 <- freq(problemas, plot=F) %>% as.data.frame(., stringsAsFactors=F)
 xtab2 <- xtable(tabela2, caption = "Motivos de não operação", label='poc-operacao', 
                 digits = 2)
 print(xtab2, include.rownames = T, caption.placement = 'top', 
       tabular.environment = "longtable", floating = F)
 
 #Gráfico
-pno_corrigido$V2 %<>% as.factor
-levels(pno_corrigido$V2) = c("Sem análise de água","Água imprópria para consumo humano",
-                             "Tubulação não entregue","Sem energização")
-
-ggplot(pno_corrigido, aes(x=V2))+geom_bar(aes(fill=V2))+
+library(ggthemes)
+ggplot(NULL, aes(x=problemas))+geom_bar(aes(fill=problemas))+
   theme(axis.text.x = element_blank(), axis.ticks.x = element_blank())+
-  labs(x="",y="",fill="Motivos de não operação")
+  labs(x="",y="",fill="Motivos de não operação")+scale_fill_grey()
 
 
 # Separando cada motivo por município:
